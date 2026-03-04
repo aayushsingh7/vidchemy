@@ -2,7 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectMongo from "../shared/config/mongo.config.js";
-import productRoutes from "./routes/listing.route.js"
+import listingRoutes from "./routes/listing.route.js"
+import ingestionRoutes from "./routes/ingestion.route.js"
 import globalErrorHandler from "../shared/utils/error-handler.util.js";
 dotenv.config();
 connectMongo();
@@ -11,7 +12,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.use("/api/v1/listings", productRoutes)
+app.use("/api/v1/listings", listingRoutes);
+app.use("/api/v1/ingest", ingestionRoutes)
 
 app.use(globalErrorHandler);
 
