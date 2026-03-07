@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
 
 .font-inter {
   font-family: 'Inter', sans-serif;
@@ -12,4 +12,30 @@
     box-sizing: border-box;
     scroll-behavior: smooth;
   }
+}
+
+
+.polka-bg{
+  background-color: #111827;
+opacity: 1;
+background-image: radial-gradient(#374151 1.4000000000000001px, #111827 1.4000000000000001px);
+background-size: 28px 28px;
+}
+
+::-webkit-scrollbar{
+  width: 0px;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.75); }
+}
+
+.dot-pulse {
+  animation: pulse-dot 1.6s ease-in-out infinite;
 }
