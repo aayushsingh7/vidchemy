@@ -39,6 +39,10 @@ class AWSService {
         }
     }
 
+    generateKey(prefix) {
+        return `${prefix}/${Date.now()}_${generateId(20)}`;
+    }
+
     async getS3Object(s3VideoKey) {
         return await s3Client.send(
             new GetObjectCommand({
@@ -50,7 +54,7 @@ class AWSService {
 
     async uploadStream({key, stream, contentType}) {
         const upload = new Upload({
-            client: this.s3Client,
+            client: s3Client,
             params: {
                 Bucket: process.env.AWS_S3_BUCKET_NAME,
                 Key: key,
