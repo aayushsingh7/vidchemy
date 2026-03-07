@@ -65,7 +65,7 @@ const REJECTED_INDEX = PIPELINE_STEPS.findIndex(
 const DRUM_RADIUS = 250;
 const ANGLE_STEP = 30;
 
-function drumTransform(offset) {
+function drumTransform(offset:number) {
   const rad = (offset * ANGLE_STEP * Math.PI) / 180;
   return {
     y: DRUM_RADIUS * Math.sin(rad),

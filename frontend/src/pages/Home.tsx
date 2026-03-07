@@ -5,7 +5,7 @@ import { useGuestAccount } from "../hooks/useGuestAccount";
 import DropDown from "../components/DropDown";
 import {ArrowLongRightIcon, ArrowPathIcon} from "@heroicons/react/24/outline"
 
-const navigation = [];
+const navigation:any[] = [];
 const productCategories = [
   "Headphones",
   "Watch",
