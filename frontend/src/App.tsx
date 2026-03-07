@@ -2,7 +2,7 @@ import Home from "./pages/Home";
 
 import { useEffect, useState } from "react";
 import SideNav from "./layouts/SideNav";
-import DashboardHome from "./pages/dashboard/Home"; // ✅import PipelineLoader from "./layouts/PipelineLoader";
+import DashboardHome from "./pages/dashboard/Home";
 import PipelineLoader from "./layouts/PipelineLoader";
 import { Routes, Route, Outlet } from "react-router-dom";
 import Listings from "./pages/dashboard/Listings";
