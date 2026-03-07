@@ -7,14 +7,20 @@ class IngestionService {
         this.#listingService = listingService;
     }
 
-    async addIngestionJob(url) {
-        if (!url) throw new CustomError("Url is required", 400);
+    async addIngestionJob({url, productType, userId, primarySourceUrl}) {
+        if (!url || !productType || !userId) throw new CustomError("Url, product type and user id is required", 400);
+        if (!url.startsWith("https://instagram.com")) throw new CustomError("Only instagram post url are supported");
         try {
-            const job = await ingestionQueue.add("ingest-job", {url});
+            const job = await ingestionQueue.add("ingest-job", {
+                url,
+                productType,
+                userId,
+                primarySourceUrl: primarySourceUrl || null,
+            });
             const newListing = await this.#listingService.createListing({
-                user: "",
+                guestId: userId,
                 sourceUrl: url,
-                processingStatus: "pending",
+                processingStatus: "PENDING",
                 jobId: job.id,
             });
 
