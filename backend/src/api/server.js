@@ -4,16 +4,19 @@ import cors from "cors";
 import connectMongo from "../shared/config/mongo.config.js";
 import listingRoutes from "./routes/listing.route.js"
 import ingestionRoutes from "./routes/ingestion.route.js"
+import dashboardRoutes from "./routes/dashboard.route.js"
 import globalErrorHandler from "../shared/utils/error-handler.util.js";
+import setupSocketServer from "../shared/config/socket.config.js";
 dotenv.config();
 connectMongo();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({origin:true, credentials:true}));
 
 app.use("/api/v1/listings", listingRoutes);
-app.use("/api/v1/ingest", ingestionRoutes)
+app.use("/api/v1/ingest", ingestionRoutes);
+app.use("/api/v1/dashboard", dashboardRoutes);
 
 app.use(globalErrorHandler);
 
@@ -33,3 +36,6 @@ server.on("error", (err) => {
 
     process.exit(1);
 });
+
+
+setupSocketServer(server)

@@ -7,9 +7,9 @@ const SUB_CLIENT = redis.duplicate();
 
 const setupSocketServer = (httpServer) => {
     const io = new Server(httpServer, {
-        cors: {origin: "http://localhost:4000"},
+        cors: {origin: "*"},
         adapter: createAdapter(PUB_CLIENT, SUB_CLIENT),
-        transports: ["websocket", "polling"],
+        transports: ["websocket"],
         allowEIO3: true,
     });
 
@@ -21,7 +21,8 @@ const setupSocketServer = (httpServer) => {
     });
 
     io.on("connection", (socket) => {
-        console.log("Socket connected:", socket.id);
+        console.log("Socket connected:", socket.data.userId);
+        socket.join(socket.data.userId);
     });
 
     return io;
