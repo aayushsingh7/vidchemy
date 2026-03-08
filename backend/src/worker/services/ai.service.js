@@ -4,10 +4,17 @@ import {ConverseCommand, InvokeModelCommand} from "@aws-sdk/client-bedrock-runti
 import {GetLabelDetectionCommand, StartLabelDetectionCommand} from "@aws-sdk/client-rekognition";
 import {GetTranscriptionJobCommand, StartTranscriptionJobCommand} from "@aws-sdk/client-transcribe";
 import Perplexity from "@perplexity-ai/perplexity_ai";
-import {bedrockClient, rekognitionClient, transcribeClient} from "../../shared/config/awsClients.config.js";
+import {
+    bedrockClient,
+    rekognitionClient,
+    titanClient,
+    transcribeClient,
+} from "../../shared/config/awsClients.config.js";
 import CustomError from "../../shared/utils/custom-error.util.js";
 import AI_OPERATIONS from "../../shared/config/ai-operations.config.js";
 import {formatOriginalProduct, formatReferenceProduct} from "../utils/format-product.util.js";
+import pLimit from "p-limit";
+const limit = pLimit(1); // only 1 user processing at a time (prototype)
 
 const perplexityClient = new Perplexity({apiKey: process.env.PERPLEXITY_API_KEY});
 const mvpFilters = {
@@ -32,7 +39,6 @@ class AIService {
     }
 
     async #removeImageBackground({key, buffer}) {
-        try {
             const base64 = buffer.toString("base64");
             const payload = {
                 taskType: "BACKGROUND_REMOVAL",
@@ -48,15 +54,12 @@ class AIService {
                 body: JSON.stringify(payload),
             });
 
-            const response = await client.send(command);
+            const response = await titanClient.send(command);
             const responseBody = JSON.parse(new TextDecoder().decode(response.body));
             const resultBase64 = responseBody.images[0];
+            if (!resultBase64) return null;
             await this.#awsService.uploadBase64({base64: resultBase64, key: key, contentType: "image/jpeg"});
             return `${process.env.CLOUD_FRONT_URL}/${key}`;
-        } catch (err) {
-            console.error("Error removing background:", err);
-            throw err;
-        }
     }
 
     async analyzeVideoContent({s3Key, productType, title, description}) {
@@ -114,21 +117,40 @@ class AIService {
         }
     }
 
-    async backgroundRemoval(bufferedImages) {
-        try {
-            const batchPromises = bufferedImages.map((imageData) => {
-                return this.#removeImageBackground({key: imageData.key, buffer: imageData.buffer}).catch((err) => {
-                    console.log("ERROR WHILE REMOVING BACKGROUND: ", err.message);
-                    return null;
-                });
-            });
+    async backgroundRemovalBatched({bufferedImages, batchSize = 2}) {
+        const results = [];
+        for (let i = 0; i < bufferedImages.length; i += batchSize) {
+            const batch = bufferedImages.slice(i, i + batchSize);
 
-            const batchResults = await Promise.all(batchPromises);
-            return batchResults.filter(Boolean);
-        } catch (err) {
-            console.error(err);
-            throw new CustomError("Something went wrong while removing the background", 500);
+            const batchResults = await Promise.all(
+                batch.map((imageData) =>
+                    this.#removeImageBackground({
+                        key: imageData.key,
+                        buffer: Buffer.from(imageData.buffer.data),
+                    }).catch(() => null)
+                )
+            );
+
+            results.push(...batchResults.filter(Boolean));
         }
+
+        return results;
+    }
+
+    async backgroundRemoval(bufferedImages) {
+        const promises = bufferedImages.map((imageData) =>
+            limit(() =>
+                this.#removeImageBackground({
+                    key: imageData.key,
+                    buffer:imageData.buffer,
+                }).catch((err)=> {
+                    console.error("Error Removing Background", err.message);
+                    return null
+                })
+            )
+        );
+
+        return (await Promise.all(promises)).filter(Boolean);
     }
 
     async researchProductDetails({productName, website, additionalContext}) {
@@ -140,7 +162,7 @@ class AIService {
                 messages: [
                     {
                         role: "user",
-                        content: op.user({productName, website, addtionalContext}),
+                        content: op.user({productName, website, additionalContext}),
                     },
                 ],
                 max_tokens: 2000,
@@ -156,12 +178,21 @@ class AIService {
     }
 
     async draftOptimizedListing({referenceProducts, originalProduct}) {
-        const formattedReferenceProduct = referenceProducts.map((product, index) => {
-            formatReferenceProduct(product, index + 1);
-        });
+        const formattedReferenceProduct = referenceProducts.map((product, index) =>
+            formatReferenceProduct(product, index + 1)
+        );
         const formattedOriginalProduct = formatOriginalProduct(originalProduct);
-
         const op = this.#aiOperations.BEDROCK_LISTING_GENERATION;
+
+        console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        console.log(
+            op.user({
+                referenceProducts: formattedReferenceProduct,
+                originalProduct: formattedOriginalProduct,
+            })
+        );
+        console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+
         const command = new ConverseCommand({
             modelId: "arn:aws:bedrock:ap-south-1:727646487353:inference-profile/apac.amazon.nova-pro-v1:0",
             system: [{text: op.system}],
@@ -178,6 +209,10 @@ class AIService {
                     ],
                 },
             ],
+            inferenceConfig: {
+                temperature: 0.1,
+                topP: 0.9,
+            },
             toolConfig: {
                 tools: [
                     {
