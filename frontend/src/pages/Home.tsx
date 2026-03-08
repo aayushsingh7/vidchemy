@@ -3,9 +3,9 @@ import { Dialog, DialogPanel } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
 import { useGuestAccount } from "../hooks/useGuestAccount";
 import DropDown from "../components/DropDown";
-import {ArrowLongRightIcon, ArrowPathIcon} from "@heroicons/react/24/outline"
+import { ArrowLongRightIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 
-const navigation:any[] = [];
+const navigation: any[] = [];
 const productCategories = [
   "Headphones",
   "Watch",
@@ -16,7 +16,7 @@ const productCategories = [
   "Laptop",
   "Jacket",
   "Shirt",
-  "Cosmetics"
+  "Cosmetics",
 ];
 
 const Home = () => {
@@ -24,8 +24,34 @@ const Home = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [productType, setProductType] = useState<string>("");
+  const [url, setUrl] = useState<string>("");
 
-  const createNewJob = async (e: any) => {};
+  const createNewJob = async (e: any) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/ingest`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url,
+          productType: productType,
+          userId: guestId,
+          primarySourceUrl: null,
+        }),
+      });
+
+      const { data } = await res.json();
+      navigate(`/status/${data.jobId}`);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setUrl("");
+      setLoading(false);
+      setProductType("");
+    }
+  };
 
   return (
     <div className="polka-bg">
@@ -133,19 +159,32 @@ const Home = () => {
             onSubmit={createNewJob}
             className="mt-10 max-w-3xl flex items-center border gap-2 bg-gray-800 border-gray-500/30 h-17  w-full rounded-full"
           >
-            <DropDown options={productCategories} defaultTxt="Category" />
+            <DropDown
+              options={productCategories}
+              defaultTxt="Category"
+              onSelect={setProductType}
+            />
             <input
+              onChange={(e: any) => setUrl(e.target.value)}
+              value={url}
               type="url"
               placeholder="Enter Instagram Post or Reel Link"
               className="w-full h-full pl-2 outline-none text-xl placeholder-gray-400 text-white"
               required
             />
             <button
-            disabled={loading}
+              disabled={loading}
               type="submit"
               className="bg-indigo-600 active:scale-95 transition w-30 h-14  rounded-full text-xl font-bold text-white mr-1 flex items-center justify-center"
             >
-              {loading ? <ArrowPathIcon className="w-8 h-8 font-bold" style={{animation: "spin 1.4s linear infinite" }} /> : <ArrowLongRightIcon className="w-10 h-10"/>}
+              {loading ? (
+                <ArrowPathIcon
+                  className="w-8 h-8 font-bold"
+                  style={{ animation: "spin 1.4s linear infinite" }}
+                />
+              ) : (
+                <ArrowLongRightIcon className="w-10 h-10" />
+              )}
             </button>
           </form>
         </div>
