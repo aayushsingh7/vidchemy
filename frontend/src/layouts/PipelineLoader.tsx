@@ -4,6 +4,8 @@ import {
   ArrowPathIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { useSocket } from "../contexts/socketContext";
+import { useNavigate, useParams } from "react-router-dom";
 
 const STATUS_ENUM = {
   PENDING: "PENDING",
@@ -27,7 +29,7 @@ const PIPELINE_STEPS = [
     key: STATUS_ENUM.INGESTING,
     label: "Ingesting & Verifying",
     description:
-      "Data streams are being ingested and validated for integrity, schema compliance, and format consistency checks.",
+      "Data streams are being ingested and validated for integrity, schema compliance, and format consistency checks",
   },
   {
     key: STATUS_ENUM.QUEUED,
@@ -55,7 +57,6 @@ const PIPELINE_STEPS = [
   },
 ];
 
-
 const TERMINAL_ERROR_STATES = [STATUS_ENUM.FAILED, STATUS_ENUM.REJECTED];
 const REJECTED_INDEX = PIPELINE_STEPS.findIndex(
   (s) => s.key === STATUS_ENUM.INGESTING,
@@ -65,7 +66,7 @@ const REJECTED_INDEX = PIPELINE_STEPS.findIndex(
 const DRUM_RADIUS = 250;
 const ANGLE_STEP = 30;
 
-function drumTransform(offset:number) {
+function drumTransform(offset: number) {
   const rad = (offset * ANGLE_STEP * Math.PI) / 180;
   return {
     y: DRUM_RADIUS * Math.sin(rad),
@@ -73,7 +74,15 @@ function drumTransform(offset:number) {
   };
 }
 
-function StatusIndicator({ isCompleted, isCurrent, isFailed }:{isCompleted:boolean, isCurrent:boolean, isFailed:boolean}) {
+function StatusIndicator({
+  isCompleted,
+  isCurrent,
+  isFailed,
+}: {
+  isCompleted: boolean;
+  isCurrent: boolean;
+  isFailed: boolean;
+}) {
   if (isFailed) {
     return (
       <div className="w-9 h-9 rounded-full bg-red-500/15 border-2 border-red-500/55 flex items-center justify-center flex-shrink-0">
@@ -104,8 +113,12 @@ function StatusIndicator({ isCompleted, isCurrent, isFailed }:{isCompleted:boole
   );
 }
 
-
-export default function PipelineLoader({ status = STATUS_ENUM.PENDING }) {
+export default function PipelineLoader({}) {
+  const socket = useSocket();
+  const navigate = useNavigate();
+  const { jobId } = useParams();
+  const [status, setStatus] = useState<string>(STATUS_ENUM.COMPLETED);
+  const [errorMsg, setErrorMsg] = useState<null | string>(null);
   const isTerminalError = TERMINAL_ERROR_STATES.includes(status);
   const lastLinearIndexRef = useRef(0);
 
@@ -128,13 +141,31 @@ export default function PipelineLoader({ status = STATUS_ENUM.PENDING }) {
     return () => cancelAnimationFrame(id);
   }, [resolvedIndex]);
 
+  useEffect(() => {
+    socket.on(
+      "job-status",
+      (data: {
+        jobId: string;
+        status: string;
+        errorMessage: null | string;
+        data:null | any;
+      }) => {
+        if (data.jobId == jobId) {
+          setStatus(data.status);
+          console.log(data.errorMessage)
+          if (data.errorMessage) setErrorMsg(data.errorMessage);
+          if(data.data) setTimeout(()=> {
+            navigate(`/dashboard/listings/${data.data._id}`)
+          }, 2000)
+        }
+      },
+    );
+  }, [socket]);
 
   return (
     <>
-
       <div className="select-none relative font-inter pipeline-root bg-gray-900 h-[100dvh] flex flex-col items-center justify-center">
         <div className="w-full max-w-[700px]">
-
           <div className="mb-6">
             {/* <div className="flex items-start justify-between">
               <div>rackin
@@ -190,7 +221,6 @@ export default function PipelineLoader({ status = STATUS_ENUM.PENDING }) {
                 "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.55) 11%, black 19%, black 81%, rgba(0,0,0,0.55) 89%, transparent 100%)",
             }}
           >
-           
             {PIPELINE_STEPS.map((step, index) => {
               const offset = index - currentIndex;
               const absOffset = Math.abs(offset);
@@ -227,15 +257,13 @@ export default function PipelineLoader({ status = STATUS_ENUM.PENDING }) {
                   }}
                 >
                   <div className="flex items-start gap-4 px-5 py-6 rounded-[10px] bg-gray-900 border-2 border-gray-500/30">
- 
                     <div className="mt-0.5">
                       <StatusIndicator
-                        isCompleted={isCompleted}
+                        isCompleted={status == "COMPLETED" || isCompleted}
                         isCurrent={isCurrent}
                         isFailed={isFailed}
                       />
                     </div>
-
 
                     <div className="flex-1 min-w-0">
                       <div
@@ -243,7 +271,7 @@ export default function PipelineLoader({ status = STATUS_ENUM.PENDING }) {
                         style={{
                           color: isFailed
                             ? "#f87171"
-                            : isCompleted
+                            : isCompleted || status == "COMPLETED"
                               ? "#34d399"
                               : isCurrent
                                 ? "#4F46E5"
@@ -255,12 +283,10 @@ export default function PipelineLoader({ status = STATUS_ENUM.PENDING }) {
                       <p
                         className="mt-2 text-md text-gray-400"
                         style={{
-                          color: isCurrent
-                            ? "#9CA3AF"
-                            : "#6B7280",
+                          color:(isCurrent && isTerminalError) ?  "#e46565" :  isCurrent ? "#9CA3AF" : "#6B7280",
                         }}
                       >
-                        {step.description}
+                        {(isCurrent && isTerminalError) ? errorMsg :  step.description}
                       </p>
                     </div>
                   </div>
