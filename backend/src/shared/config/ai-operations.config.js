@@ -2,7 +2,7 @@ import {
     BEDROCK_LISTING_GENERATION,
     BEDROCK_VIDEO_ANALYSIS,
     PERPLEXITY_PRODUCT_RESEARCH,
-} from "../../../ai-prompts.private";
+} from "../../../ai-prompts.private.js";
 
 const AI_OPERATIONS = {
     BEDROCK_VIDEO_ANALYSIS,

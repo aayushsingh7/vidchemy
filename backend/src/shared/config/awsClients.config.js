@@ -14,6 +14,7 @@ const awsConfig = {
 };
 
 export const s3Client = new S3Client(awsConfig);
-export const bedrockClient = new BedrockRuntimeClient(awsConfig)
+export const bedrockClient = new BedrockRuntimeClient(awsConfig);
+export const titanClient = new BedrockRuntimeClient({...awsConfig, region:"us-east-1"});
 export const rekognitionClient = new RekognitionClient(awsConfig);
 export const transcribeClient = new TranscribeClient(awsConfig);
