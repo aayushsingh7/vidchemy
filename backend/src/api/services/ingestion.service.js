@@ -10,8 +10,8 @@ class IngestionService {
 
     async addIngestionJob({url, productType, userId, primarySourceUrl}) {
         if (!url || !productType || !userId) throw new CustomError("Url, product type and user id is required", 400);
-        if (!url.startsWith("https://www.instagram.com"))
-            throw new CustomError("Only instagram post url are supported", 400);
+        if (!url.startsWith("https://www.instagram.com/reel"))
+            throw new CustomError("Only instagram reels are supported", 400);
         try {
             const jobId = randomUUID();
             const newListing = await this.#listingService.createListing({

@@ -12,7 +12,7 @@ class ListingService {
         if (!userId) throw new CustomError("User id is required");
 
         const [listings, listingCnt] = await Promise.all([
-            Listing.find({guestId: userId})
+            Listing.find({guestId: userId, processingStatus:"COMPLETED"})
             .select(
                 "_id title medias description attributes.estimatedOriginalPriceINR attributes.estimatedPriceINR attributes.estimatedDiscountPercent"
             )
