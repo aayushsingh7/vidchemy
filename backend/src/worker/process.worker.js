@@ -138,6 +138,8 @@ const worker = new Worker(
                 .emit("job-status", {jobId: job.id, status: "FAILED", errorMessage: "Something Went Wrong"});
 
                 console.log(`[INGESTION WORKER] Job ${job.id} failed:`, err);
+            } finally {
+                await redis.decr(`user:${userId}:active-jobs`);
             }
         }
     },

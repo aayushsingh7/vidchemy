@@ -1,4 +1,5 @@
 import {ingestionQueue} from "../../shared/config/queue.config.js";
+import redis from "../../shared/config/redis.config.js";
 import CustomError from "../../shared/utils/custom-error.util.js";
 import {randomUUID} from "crypto";
 
@@ -13,6 +14,10 @@ class IngestionService {
         if (!url.startsWith("https://www.instagram.com/reel"))
             throw new CustomError("Only instagram reels are supported", 400);
         try {
+            const activeJobCount = parseInt((await redis.get(`user:${userId}:active-jobs`)) || "0");
+            if (activeJobCount === 2) throw new CustomError("Only 2 concurrent processes are allowed");
+            await redis.incr(`user:${userId}:active-jobs`);
+            
             const jobId = randomUUID();
             const newListing = await this.#listingService.createListing({
                 guestId: userId,

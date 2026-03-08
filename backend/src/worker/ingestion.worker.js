@@ -29,7 +29,7 @@ const worker = new Worker(
                     currentStatus: "INGESTING_AND_VERIFYING",
                     jobId,
                 });
-                
+
                 // setTimeout(()=> {
                 //     emitter.to(userId).emit("job-status", {jobId, status: "REJECTED", errorMessage: "NFSW Content detected."});
 
@@ -46,6 +46,7 @@ const worker = new Worker(
                 let jobStatus = "QUEUED",
                     errorMessage = "";
                 if (result.isRejected) {
+                    await redis.decr(`user:${userId}:active-jobs`);
                     jobStatus = "REJECTED";
                     errorMessage = result.response.join("\n");
                     await listingService.updateProcessingStatus({
@@ -88,6 +89,7 @@ const worker = new Worker(
                 emitter
                 .to(job.data.userId)
                 .emit("job-status", {jobId: job.id, status: "FAILED", errorMessage: "Something Went Wrong"});
+                await redis.decr(`user:${userId}:active-jobs`);
 
                 console.log(`[INGESTION WORKER] Job ${job.id} failed:`, err);
             }
