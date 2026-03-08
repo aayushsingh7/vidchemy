@@ -8,17 +8,24 @@ class ListingService {
         return listing;
     }
 
-    async getListings({userId, offset = 0}) {
+    async getListings({userId, offset = 0, limit = 15}) {
         if (!userId) throw new CustomError("User id is required");
 
         const [listings, listingCnt] = await Promise.all([
-            Listing.find({guestId: userId}).skip(offset).limit(15),
+            Listing.find({guestId: userId})
+            .select(
+                "_id title medias description attributes.estimatedOriginalPriceINR attributes.estimatedPriceINR attributes.estimatedDiscountPercent"
+            )
+            .skip(offset)
+            .limit(limit)
+            .sort({createdAt: -1}),
+
             Listing.countDocuments({guestId: userId}),
         ]);
 
         return {
             listings,
-            isMore: listingCnt - offset > 15,
+            isMore: listingCnt - offset > limit,
             totalProductCnt: listingCnt,
         };
     }
@@ -26,16 +33,24 @@ class ListingService {
     async updateListingById({id, jobId, updatedData}) {
         const params = id ? {_id: id} : {jobId};
         if (!updatedData) throw new CustomError("Id and Data are required", 400);
-        const update = await Listing.updateOne(params, {$set: updatedData});
-        if (update.matchedCount === 0) throw new CustomError("Product not found", 404);
-        if (!update.acknowledged) throw new CustomError("Update failed, try again later", 500);
+        const updatedDocument = await Listing.findOneAndUpdate(params, {$set: updatedData}, {returnDocument: "after"});
+        if (!updatedDocument) throw new CustomError("Product not found", 404);
+        return updatedDocument;
     }
 
     async createListing(data) {
         if (!data) throw new CustomError("Product data is required", 400);
         const listing = new Listing(data);
         await listing.save();
-        return listing;
+
+        const obj = listing.toObject();
+        return {
+            guestId: obj.guestId,
+            sourceUrl: obj.sourceUrl,
+            processingStatus: obj.processingStatus,
+            jobId: obj.jobId,
+            _id: obj._id,
+        };
     }
 
     async updateProcessingStatus({id, jobId, currentStatus, errorMessage}) {
@@ -43,9 +58,9 @@ class ListingService {
         if (!currentStatus) throw new CustomError("Id and status are required", 400);
         const updateFields = {processingStatus: currentStatus};
         if (errorMessage) updateFields.errorMessage = errorMessage;
-        const update = await Listing.findOneAndUpdate(params, {$set: updateFields}, {new: true});
-        if (!update) throw new CustomError("Product not found", 404);
-        return update;
+        const updatedDocument = await Listing.findOneAndUpdate(params, {$set: updateFields}, {returnDocument: "after"});
+        if (!updatedDocument) throw new CustomError("Product not found", 404);
+        return updatedDocument;
     }
 
     async deleteListing(id) {

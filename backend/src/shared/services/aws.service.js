@@ -75,7 +75,7 @@ class AWSService {
             ContentType: contentType,
         });
 
-        await this.s3Client.send(command);
+        await s3Client.send(command);
         return key;
     }
 }
