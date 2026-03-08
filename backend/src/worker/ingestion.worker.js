@@ -25,16 +25,19 @@ const worker = new Worker(
             const {url, productType, userId, primarySourceUrl} = job.data;
             let jobId = job.id;
             try {
-                emitter.to(userId).emit("job-status", {jobId, status: "INGESTING_AND_VERIFYING", errorMessage: ""});
                 await listingService.updateProcessingStatus({
                     currentStatus: "INGESTING_AND_VERIFYING",
                     jobId,
                 });
+                
+                // setTimeout(()=> {
+                //     emitter.to(userId).emit("job-status", {jobId, status: "REJECTED", errorMessage: "NFSW Content detected."});
 
-                postData = await scraperSerivce.fetchInstagramReel(url);
-
+                // }, 5000)
+                // return;
+                const postData = await scraperSerivce.fetchInstagramReel(url);
                 const result = await aiService.analyzeVideoContent({
-                    s3VideoKey: postData.s3Key,
+                    s3Key: postData.s3Key,
                     title: postData.title,
                     description: postData.description,
                     productType,
@@ -42,7 +45,7 @@ const worker = new Worker(
 
                 let jobStatus = "QUEUED",
                     errorMessage = "";
-                if (!result.isRejected) {
+                if (result.isRejected) {
                     jobStatus = "REJECTED";
                     errorMessage = result.response.join("\n");
                     await listingService.updateProcessingStatus({
@@ -68,6 +71,13 @@ const worker = new Worker(
                     });
                 }
                 emitter.to(userId).emit("job-status", {jobId, status: jobStatus, errorMessage});
+                console.log("[STATUS]: Ingestion Job Completed", {
+                    s3Key: postData.s3Key,
+                    userId,
+                    primarySourceUrl,
+                    videoAnalysisResult: result,
+                    postMetadata: postData,
+                });
             } catch (err) {
                 await listingService.updateProcessingStatus({
                     currentStatus: "FAILED",

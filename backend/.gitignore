@@ -1,2 +1,5 @@
 node_modules
 .env
+sample-data
+ai-prompts.private.js
+src/worker/process-worker-output

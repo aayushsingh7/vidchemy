@@ -41,7 +41,7 @@ const listingSchema = new Schema(
             ],
             default: "PENDING",
         },
-        jobId: {type: String, index: true, required: [true, "Job Id is Required"]},
+        jobId: {type: String, required: [true, "Job Id is Required"]},
         errorMessage: {type: String},
     },
     {timestamps: true}
