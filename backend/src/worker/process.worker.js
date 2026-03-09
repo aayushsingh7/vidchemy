@@ -35,7 +35,7 @@ const worker = new Worker(
             const jobId = job.id;
 
             try {
-                emitter.to(userId).emit("job-status", {jobId, status: "INGESTING_AND_VERIFYING", errorMessage: ""});
+                emitter.to(userId).emit("job-status", {jobId, status: "PROCESSING", errorMessage: ""});
                 await listingService.updateProcessingStatus({
                     currentStatus: "PROCESSING",
                     jobId,

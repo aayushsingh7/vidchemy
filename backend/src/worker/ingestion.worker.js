@@ -25,10 +25,15 @@ const worker = new Worker(
             const {url, productType, userId, primarySourceUrl} = job.data;
             let jobId = job.id;
             try {
+                emitter
+                .to(userId)
+                .emit("job-status", {jobId: job.id, status: "INGESTING_AND_VERIFYING", errorMessage: null});
+
                 await listingService.updateProcessingStatus({
                     currentStatus: "INGESTING_AND_VERIFYING",
                     jobId,
                 });
+
 
                 // setTimeout(()=> {
                 //     emitter.to(userId).emit("job-status", {jobId, status: "REJECTED", errorMessage: "NFSW Content detected."});
