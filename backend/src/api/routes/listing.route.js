@@ -6,6 +6,7 @@ const router = Router();
 const listingService = new ListingService();
 const listingController = new ListingController(listingService);
 
+router.get("/:id/status", listingController.getListingStatus);
 router.get("/:id", listingController.getListing);
 router.get("/", listingController.getListings);
 router.put("/:id", listingController.updateListing);

@@ -2,6 +2,12 @@ import Listing from "../models/listing.model.js";
 import CustomError from "../utils/custom-error.util.js";
 
 class ListingService {
+    async getListingStatus({id, jobId}) {
+        const params = id ? {_id: id} : {jobId};
+        const data=  await Listing.findOne(params).select("processingStatus")
+        return data.processingStatus;
+    }
+
     async getListingById(id) {
         const listing = await Listing.findById(id).lean();
         if (!listing) throw new CustomError("Listing not found", 404);
@@ -12,7 +18,7 @@ class ListingService {
         if (!userId) throw new CustomError("User id is required");
 
         const [listings, listingCnt] = await Promise.all([
-            Listing.find({guestId: userId, processingStatus:"COMPLETED"})
+            Listing.find({guestId: userId, processingStatus: "COMPLETED"})
             .select(
                 "_id title medias description attributes.estimatedOriginalPriceINR attributes.estimatedPriceINR attributes.estimatedDiscountPercent"
             )

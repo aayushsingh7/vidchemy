@@ -4,6 +4,16 @@ class ListingController {
         this.#listingService = listingService;
     }
 
+    getListingStatus = async(req,res,next)=> {
+        try{
+           const {id} = req.params;
+           const status = await this.#listingService.getListingStatus({jobId:id});
+           res.status(200).send({status:"success", data:status, message:"Status fetched successfuly"})
+        }catch(err){
+            next(err)
+        }
+    }
+
     getListing = async (req, res, next) => {
         try {
             const {id} = req.params;
