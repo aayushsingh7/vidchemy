@@ -5,6 +5,7 @@ class ListingService {
     async getListingStatus({id, jobId}) {
         const params = id ? {_id: id} : {jobId};
         const data=  await Listing.findOne(params).select("processingStatus")
+        if(!data) return null;
         return data.processingStatus;
     }
 
