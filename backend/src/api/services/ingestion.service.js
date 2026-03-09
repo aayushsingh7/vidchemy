@@ -11,13 +11,14 @@ class IngestionService {
 
     async addIngestionJob({url, productType, userId, primarySourceUrl}) {
         if (!url || !productType || !userId) throw new CustomError("Url, product type and user id is required", 400);
-        if (!url.startsWith("https://www.instagram.com/reel"))
+        if (!/^https:\/\/(www\.)?instagram\.com\/reel\//.test(url)) {
             throw new CustomError("Only instagram reels are supported", 400);
+        }
         try {
             const activeJobCount = parseInt((await redis.get(`user:${userId}:active-jobs`)) || "0");
-            if (activeJobCount === 2) throw new CustomError("Only 2 concurrent processes are allowed");
+            if (activeJobCount === 2) throw new CustomError("Only 2 concurrent processes are allowed, try again later");
             await redis.incr(`user:${userId}:active-jobs`);
-            
+
             const jobId = randomUUID();
             const newListing = await this.#listingService.createListing({
                 guestId: userId,

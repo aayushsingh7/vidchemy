@@ -69,8 +69,10 @@ class ScraperService {
             });
 
             const result = await response.json();
+            if (!result || !result.data) {
+                throw new CustomError("Unable to retrieve Instagram reel data.");
+            }
             const postData = result.data;
-
             const medias = postData.medias;
             if (!medias.length) throw new CustomError("Cannot download the video");
 

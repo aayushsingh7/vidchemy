@@ -6,7 +6,7 @@ class DashboardService {
         if (!userId) throw new CustomError("User id is required", 400);
 
         const [recentListings, completed, failed, rejected, activeJobs] = await Promise.all([
-            Listing.find({guestId: userId, processStatus:"COMPLETED"}).sort({createdAt: -1}).limit(5),
+            Listing.find({guestId: userId, processingStatus:"COMPLETED"}).sort({createdAt: -1}).limit(5),
             Listing.countDocuments({guestId: userId, processingStatus: "COMPLETED"}),
             Listing.countDocuments({guestId: userId, processingStatus: "FAILED"}),
             Listing.countDocuments({guestId: userId, processingStatus: "REJECTED"}),
