@@ -34,12 +34,6 @@ const worker = new Worker(
                     jobId,
                 });
 
-
-                // setTimeout(()=> {
-                //     emitter.to(userId).emit("job-status", {jobId, status: "REJECTED", errorMessage: "NFSW Content detected."});
-
-                // }, 5000)
-                // return;
                 const postData = await scraperSerivce.fetchInstagramReel(url);
                 const result = await aiService.analyzeVideoContent({
                     s3Key: postData.s3Key,
@@ -77,13 +71,7 @@ const worker = new Worker(
                     });
                 }
                 emitter.to(userId).emit("job-status", {jobId, status: jobStatus, errorMessage});
-                console.log("[STATUS]: Ingestion Job Completed", {
-                    s3Key: postData.s3Key,
-                    userId,
-                    primarySourceUrl,
-                    videoAnalysisResult: result,
-                    postMetadata: postData,
-                });
+                console.log("[STATUS]: Ingestion Job Completed");
             } catch (err) {
                 await listingService.updateProcessingStatus({
                     currentStatus: "FAILED",
