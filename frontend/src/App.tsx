@@ -6,13 +6,34 @@ import SideNav from "./layouts/SideNav";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import Listings from "./pages/dashboard/Listings";
 import Listing from "./pages/dashboard/Listing";
+import { useEffect } from "react";
+import { useSocket } from "./contexts/socketContext";
+import { useGlobalContext } from "./contexts/globalContext";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   const guestId = useGuestAccount();
-  if(!guestId) return null;
-  
+  const socket = useSocket();
+  const { updateJobStatus } = useGlobalContext();
+
+  useEffect(() => {
+    socket.on(
+      "job-status",
+      (data: { jobId: string; status: string; data: any }) => {
+        updateJobStatus({
+          jobId: data.jobId,
+          status: data.status,
+          data: data.data,
+        });
+      },
+    );
+  }, [socket]);
+
+  if (!guestId) return null;
+
   return (
     <div>
+      <Toaster position="top-right" reverseOrder={false} />
       <Routes>
         <Route path="/" element={<Home />} />
 
@@ -27,13 +48,10 @@ const App = () => {
         >
           <Route index element={<DashboardHome />} />
           <Route path="listings" element={<Listings />} />
-          <Route path="listings/:id" element={<Listing/> } />
+          <Route path="listings/:id" element={<Listing />} />
         </Route>
 
-        <Route
-          path="/status/:jobId"
-          element={<PipelineLoader />}
-        />
+        <Route path="/status/:jobId" element={<PipelineLoader />} />
       </Routes>
     </div>
   );

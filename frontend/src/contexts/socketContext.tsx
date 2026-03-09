@@ -6,7 +6,6 @@ const SocketContext = createContext<Socket | null>(null);
 
 export function SocketProvider({ children }: { children: React.ReactNode }) {
   const guest = useGuestAccount();
-  console.log(guest);
   const socket = useMemo(() => {
     return io(`${import.meta.env.VITE_SOCKET_URL}`, {
       transports: ["websocket"],

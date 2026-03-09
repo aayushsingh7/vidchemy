@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import timeAgo from "../utils/timeAgo";
-import { useSocket } from "../contexts/socketContext";
 
 interface JobProps {
   job: {
@@ -12,27 +12,18 @@ interface JobProps {
 }
 
 const JobBox: React.FC<JobProps> = ({ job }) => {
-  const socket = useSocket();
   const [duration, setDuration] = useState<string>("");
-  const [jobStatus, setJobStatus] = useState<string>(job.processingStatus);
-
+  
   useEffect(() => {
     const interval = setInterval(() => setDuration(timeAgo(job.createdAt)));
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    socket.on("job-status", (data: { jobId: string; status: string }) => {
-      if (data.jobId == job.jobId) {
-        setJobStatus(data.status);
-      }
-    });
-  }, [socket]);
 
   return (
-    <div className="relative p-3 px-5 bg-gray-900 border-2 border-gray-500/30 rounded-[10px]">
+    <Link  to={`/status/${job.jobId}`} className="relative p-3 px-5 bg-gray-900 border-2 border-gray-500/30 rounded-[10px]">
       <span className="px-3 absolute font-bold right-4 text-sm text-white bg-gray-800 border-2 border-gray-500/30 rounded-[20px] p-2">
-        {jobStatus}
+        {job.processingStatus}
       </span>
 
       <div className="flex flex-col mb-3">
@@ -54,7 +45,7 @@ const JobBox: React.FC<JobProps> = ({ job }) => {
           {duration}
         </span>
       </div>
-    </div>
+    </Link>
   );
 };
 

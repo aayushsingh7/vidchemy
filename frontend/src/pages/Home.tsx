@@ -1,21 +1,21 @@
-import { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
-import { useNavigate } from "react-router-dom";
-import { useGuestAccount } from "../hooks/useGuestAccount";
-import DropDown from "../components/DropDown";
 import { ArrowLongRightIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import DropDown from "../components/DropDown";
+import { useGuestAccount } from "../hooks/useGuestAccount";
+import { useToast } from "../hooks/useToast";
 
 const navigation: any[] = [];
 const productCategories = [
   "Headphones",
+  "Jacket",
   "Watch",
   "Shoe",
   "Bag",
   "Sunglasses",
   "Mobile Phone",
   "Laptop",
-  "Jacket",
-  "Shirt",
   "Cosmetics",
 ];
 
@@ -26,26 +26,43 @@ const Home = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [productType, setProductType] = useState<string>("");
   const [url, setUrl] = useState<string>("");
+  const toast = useToast();
 
   const createNewJob = async (e: any) => {
     e.preventDefault();
+    if (!productType) {
+      toast.error("Please select a product type");
+      return;
+    }
+
+    if (!url.startsWith("https://www.instagram.com/reel")) {
+      toast.error("Only instagram reels are supported");
+      return;
+    }
+
     setLoading(true);
+
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/ingest`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           url,
-          productType: productType,
-          userId: guestId,
+          productType,
+          guestId,
           primarySourceUrl: null,
         }),
       });
 
-      const { data } = await res.json();
-      navigate(`/status/${data.jobId}`);
-    } catch (err) {
-      console.log(err);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Something went wrong");
+      }
+
+      navigate(`/status/${data.data.jobId}`);
+    } catch (err: any) {
+      toast.error("Oops! something went wrong");
     } finally {
       setUrl("");
       setLoading(false);
@@ -81,11 +98,6 @@ const Home = () => {
                 {item.name}
               </a>
             ))}
-          </div>
-          <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-            <a href="#" className="text-sm/6 font-semibold text-white">
-              Log in <span aria-hidden="true">&rarr;</span>
-            </a>
           </div>
         </nav>
         <Dialog

@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Loader from "../../components/Loader";
 import ImageCropper from "../../layouts/ImageCropper";
+import { useToast } from "../../hooks/useToast";
 
 interface ListingData {
   title: string;
@@ -59,15 +60,17 @@ const CopyButton = ({
   );
 };
 
-const Listing = ()=>  {
+const Listing = () => {
   const { id } = useParams();
   const [data, setData] = useState<any | ListingData>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [showCrop, setShowCrop] = useState<boolean>(false);
-  const [mainImage, setMainImage] = useState<string>("https://unbredbombers.ca/wp-content/uploads/2018/05/no-image-1.jpg");
+  const [mainImage, setMainImage] = useState<string>(
+    "https://unbredbombers.ca/wp-content/uploads/2018/05/no-image-1.jpg",
+  );
+  const toast = useToast();
 
   useEffect(() => {
-    console.log("hello");
     fetchListingDetails();
   }, []);
 
@@ -76,20 +79,21 @@ const Listing = ()=>  {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/listings/${id}`);
       const data = await res.json();
       setData(data.data);
-      setMainImage(data.data.medias[0])
+      setMainImage(data.data.medias[0]);
     } catch (err) {
-      console.log(err);
+      toast.error("Oops! something went wrong, please try again");
     } finally {
       setLoading(false);
     }
   }
 
-
   if (loading) return <Loader />;
 
   return (
     <div className="mx-auto bg-white font-sans text-gray-900 overflow-scroll h-[100dvh]">
-      {showCrop && <ImageCropper imageUrl={mainImage} onClose={()=> setShowCrop(false)} />}
+      {showCrop && (
+        <ImageCropper imageUrl={mainImage} onClose={() => setShowCrop(false)} />
+      )}
       <div className="flex flex-col justify-between items-start mb-6 rounded-t-md text-md">
         <div className="flex justify-start p-4 bg-gray-50 border-b border-gray-300 w-full">
           <span className="font-semibold text-gray-700 mr-3">Category: </span>
@@ -127,8 +131,11 @@ const Listing = ()=>  {
                 alt="Main Product"
                 className="w-full h-auto object-cover max-h-[500px]"
               />
-              <button onClick={()=> setShowCrop(true)} className="absolute left-0 top-0 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm">
-                 Crop Image
+              <button
+                onClick={() => setShowCrop(true)}
+                className="absolute left-0 top-0 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
+              >
+                Crop Image
               </button>
 
               <div className="flex items-start justify-start gap-2">
@@ -295,7 +302,6 @@ const Listing = ()=>  {
       </main>
     </div>
   );
-}
-
+};
 
 export default Listing;

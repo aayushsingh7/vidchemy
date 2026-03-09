@@ -1,15 +1,16 @@
-import { useEffect, useRef, useState } from "react";
 import {
-  CheckIcon,
   ArrowPathIcon,
+  ArrowUpRightIcon,
+  CheckIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import { useSocket } from "../contexts/socketContext";
-import { useNavigate, useParams } from "react-router-dom";
 
 const STATUS_ENUM = {
   PENDING: "PENDING",
-  INGESTING: "INGESTING & VERIFYING",
+  INGESTING: "INGESTING_AND_VERIFYING",
   QUEUED: "QUEUED",
   PROCESSING: "PROCESSING",
   FINALIZING: "FINALIZING",
@@ -18,42 +19,43 @@ const STATUS_ENUM = {
   REJECTED: "REJECTED",
 };
 
+
 const PIPELINE_STEPS = [
   {
     key: STATUS_ENUM.PENDING,
     label: "Pending",
     description:
-      "Request received and registered. Awaiting entry into the processing pipeline and resource allocation.",
+      "Your request has been received and is getting ready to start processing.",
   },
   {
     key: STATUS_ENUM.INGESTING,
-    label: "Ingesting & Verifying",
+    label: "Analyzing Content",
     description:
-      "Data streams are being ingested and validated for integrity, schema compliance, and format consistency checks",
+      "We're fetching the video and analyzing its content to understand what's inside.",
   },
   {
     key: STATUS_ENUM.QUEUED,
-    label: "Queued",
+    label: "In Queue",
     description:
-      "Validation passed. Request is positioned in the execution queue and awaiting an available worker slot.",
+      "Your request is waiting in line and will start processing shortly.",
   },
   {
     key: STATUS_ENUM.PROCESSING,
     label: "Processing",
     description:
-      "Core processing pipeline is actively running. Transformations and computations are in progress across all nodes.",
+      "Our AI is working on generating insights, extracting products, and processing the video.",
   },
   {
     key: STATUS_ENUM.FINALIZING,
-    label: "Finalizing",
+    label: "Finalizing Results",
     description:
-      "Results are being compiled, indexed, and prepared for delivery to downstream systems and endpoints.",
+      "We're preparing the final results and organizing everything for you.",
   },
   {
     key: STATUS_ENUM.COMPLETED,
     label: "Completed",
     description:
-      "All pipeline stages executed successfully. Your request has been fulfilled and output is available.",
+      "Your results are ready! You can now view the extracted insights and product details.",
   },
 ];
 
@@ -113,21 +115,21 @@ function StatusIndicator({
   );
 }
 
-export default function PipelineLoader({}) {
+const PipelineLoader = ({}) => {
   const socket = useSocket();
-  const navigate = useNavigate();
   const { jobId } = useParams();
-  const [status, setStatus] = useState<string>(STATUS_ENUM.COMPLETED);
+  const [status, setStatus] = useState<string>(STATUS_ENUM.PENDING);
   const [errorMsg, setErrorMsg] = useState<null | string>(null);
   const isTerminalError = TERMINAL_ERROR_STATES.includes(status);
   const lastLinearIndexRef = useRef(0);
 
-  const resolvedIndex = (() => {
-    if (status === STATUS_ENUM.REJECTED) return REJECTED_INDEX;
-    if (status === STATUS_ENUM.FAILED) return lastLinearIndexRef.current;
-    const idx = PIPELINE_STEPS.findIndex((s) => s.key === status);
-    return idx === -1 ? 0 : idx;
-  })();
+const resolvedIndex = useMemo(() => {
+  if (status === STATUS_ENUM.REJECTED) return REJECTED_INDEX;
+  if (status === STATUS_ENUM.FAILED) return lastLinearIndexRef.current;
+  const idx = PIPELINE_STEPS.findIndex((s) => s.key === status);
+  return idx === -1 ? 0 : idx;
+}, [status]);
+
 
   if (!isTerminalError) {
     const idx = PIPELINE_STEPS.findIndex((s) => s.key === status);
@@ -141,26 +143,24 @@ export default function PipelineLoader({}) {
     return () => cancelAnimationFrame(id);
   }, [resolvedIndex]);
 
-  useEffect(() => {
-    socket.on(
-      "job-status",
-      (data: {
-        jobId: string;
-        status: string;
-        errorMessage: null | string;
-        data:null | any;
-      }) => {
-        if (data.jobId == jobId) {
-          setStatus(data.status);
-          console.log(data.errorMessage)
-          if (data.errorMessage) setErrorMsg(data.errorMessage);
-          if(data.data) setTimeout(()=> {
-            navigate(`/dashboard/listings/${data.data._id}`)
-          }, 2000)
-        }
-      },
-    );
-  }, [socket]);
+  // const progress = (currentIndex / (PIPELINE_STEPS.length - 1)) * 100;
+
+ useEffect(() => {
+  const handler = (data: {
+    jobId: string;
+    status: string;
+    errorMessage: null | string;
+    data: null | any;
+  }) => {
+    if (data.jobId == jobId) {
+      setStatus(data.status);
+      if (data.errorMessage) setErrorMsg(data.errorMessage);
+    }
+  };
+
+  socket.on("job-status", handler);
+  return () => { socket.off("job-status", handler); }; // ← cleanup
+}, [socket, jobId]);
 
   return (
     <>
@@ -194,14 +194,26 @@ export default function PipelineLoader({}) {
               </div>
             </div> */}
 
+            <div className="flex items-center justify-between">
+              <Link
+                className="flex items-center justify-center text-lg text-indigo-400 font-bold tracking-wider"
+                to={"/dashboard"}
+              >
+                <ArrowUpRightIcon className="h-6 w-6 mr-1" />
+                Dashboard
+              </Link>
+              <span className="text-xl text-gray-400 font-bold">
+                {currentIndex + 1}&nbsp;/&nbsp;{PIPELINE_STEPS.length}
+              </span>
+            </div>
             {/* Progress bar */}
             {/* <div className="mt-4">
-              <div className="h-[10px] bg-gray-800 rounded-full overflow-hidden">
+              <div className="h-[5px] bg-gray-800 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-700 ease-out"
                   style={{
                     width: `${isTerminalError ? 100 : progress}%`,
-                    background: isTerminalError ? "#ef4444" : "#06b6d4",
+                    background: isTerminalError ? "#ef4444" : "#4F46E5",
                   }}
                 />
               </div>
@@ -256,7 +268,7 @@ export default function PipelineLoader({}) {
                     willChange: "transform, opacity",
                   }}
                 >
-                  <div className="flex items-start gap-4 px-5 py-6 rounded-[10px] bg-gray-900 border-2 border-gray-500/30">
+                  <div className="flex items-start gap-4 px-5 py-6 rounded-[10px] bg-gray-800 border-2 border-gray-500/30 ">
                     <div className="mt-0.5">
                       <StatusIndicator
                         isCompleted={status == "COMPLETED" || isCompleted}
@@ -275,7 +287,7 @@ export default function PipelineLoader({}) {
                               ? "#34d399"
                               : isCurrent
                                 ? "#4F46E5"
-                                : "#6B7280",
+                                : "#9CA3AF",
                         }}
                       >
                         {step.label}
@@ -283,10 +295,17 @@ export default function PipelineLoader({}) {
                       <p
                         className="mt-2 text-md text-gray-400"
                         style={{
-                          color:(isCurrent && isTerminalError) ?  "#e46565" :  isCurrent ? "#9CA3AF" : "#6B7280",
+                          color:
+                            isCurrent && isTerminalError
+                              ? "#e46565"
+                              : isCurrent
+                                ? "#9CA3AF"
+                                : "#6B7280",
                         }}
                       >
-                        {(isCurrent && isTerminalError) ? errorMsg :  step.description}
+                        {isCurrent && isTerminalError
+                          ? errorMsg
+                          : step.description}
                       </p>
                     </div>
                   </div>
@@ -321,4 +340,7 @@ export default function PipelineLoader({}) {
       </div>
     </>
   );
-}
+};
+
+export default PipelineLoader;
+
