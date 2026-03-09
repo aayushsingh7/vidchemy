@@ -1,0 +1,54 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+
+  express-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    image: express-server
+    container_name: express-server
+    env_file: .env
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./ai-prompts.private.js:/app/ai-prompts.private.js
+    depends_on:
+      - redis
+    restart: always
+
+  ingestion-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.ingestion.worker
+    image: ingestion-worker
+    container_name: ingestion-worker
+    env_file: .env
+    volumes:
+      - ./ai-prompts.private.js:/app/ai-prompts.private.js
+    depends_on:
+      - redis
+    restart: always
+
+  process-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.process.worker
+    image: process-worker
+    container_name: process-worker
+    env_file: .env
+    volumes:
+      - ./ai-prompts.private.js:/app/ai-prompts.private.js
+    depends_on:
+      - redis
+    restart: always
+
+volumes:
+  redis-data:
