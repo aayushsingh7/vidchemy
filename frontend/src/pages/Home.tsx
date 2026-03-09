@@ -24,8 +24,8 @@ const Home = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [productType, setProductType] = useState<string>("");
-  const [url, setUrl] = useState<string>("");
+  const [productType, setProductType] = useState<string>("Jacket");
+  const [url, setUrl] = useState<string>("https://www.instagram.com/reel/DRBSbEgkSVy/");
   const toast = useToast();
 
   const createNewJob = async (e: any) => {
@@ -173,7 +173,7 @@ const Home = () => {
           >
             <DropDown
               options={productCategories}
-              defaultTxt="Category"
+              defaultTxt="Jacket"
               onSelect={setProductType}
             />
             <input

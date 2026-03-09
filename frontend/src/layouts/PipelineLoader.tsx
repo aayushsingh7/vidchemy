@@ -5,8 +5,9 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSocket } from "../contexts/socketContext";
+import { useToast } from "../hooks/useToast";
 
 const STATUS_ENUM = {
   PENDING: "PENDING",
@@ -122,6 +123,8 @@ const PipelineLoader = ({}) => {
   const [errorMsg, setErrorMsg] = useState<null | string>(null);
   const isTerminalError = TERMINAL_ERROR_STATES.includes(status);
   const lastLinearIndexRef = useRef(0);
+  const toast = useToast();
+  const navigate = useNavigate();
 
 const resolvedIndex = useMemo(() => {
   if (status === STATUS_ENUM.REJECTED) return REJECTED_INDEX;
@@ -143,6 +146,22 @@ const resolvedIndex = useMemo(() => {
     return () => cancelAnimationFrame(id);
   }, [resolvedIndex]);
 
+
+  useEffect(()=> {
+    fetchListingStatus();
+  },[])
+
+  const fetchListingStatus = async()=> {
+    try {
+       const res = await fetch(`${import.meta.env.VITE_API_URL}/listings/${jobId}/status`);
+       const data = await res.json();
+       if(!data.data) navigate(-1)
+       setStatus(data.data)
+    } catch (err) {
+      console.log(err)
+       toast.error("Oops! something went wrong")
+    } 
+  }
   // const progress = (currentIndex / (PIPELINE_STEPS.length - 1)) * 100;
 
  useEffect(() => {

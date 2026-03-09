@@ -5,9 +5,11 @@ import NoDataTemplate from "../../components/NoDataTemplate";
 import { useGlobalContext } from "../../contexts/globalContext";
 import { useGuestAccount } from "../../hooks/useGuestAccount";
 import { useToast } from "../../hooks/useToast";
+import { useNavigate } from "react-router-dom";
 
 const DashboardHome = () => {
   const guestId = useGuestAccount();
+  const navigate = useNavigate();
   const toast = useToast();
   const {activeJobs, recentListings, dashboardCards, setActiveJobs, setRecentListings, setDashboardCards } =
     useGlobalContext();
@@ -119,7 +121,7 @@ const DashboardHome = () => {
         <section className="grid grid-cols-2 mb-10 gap-2">
           {recentListings.map((data: any) => {
             return (
-              <figure className="p-3 border-2 border-gray-500/30 flex items-center gap-4">
+              <figure onClick={()=> navigate(`/dashboard/listings/${data._id}`)} className="p-3 border-2 border-gray-500/30 flex items-center gap-4">
                 <img
                   src={data.medias[0]}
                   className="w-30 h-30 rounded-[10px] bg-white"
