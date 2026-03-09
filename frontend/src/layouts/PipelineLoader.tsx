@@ -20,7 +20,6 @@ const STATUS_ENUM = {
   REJECTED: "REJECTED",
 };
 
-
 const PIPELINE_STEPS = [
   {
     key: STATUS_ENUM.PENDING,
@@ -126,13 +125,12 @@ const PipelineLoader = ({}) => {
   const toast = useToast();
   const navigate = useNavigate();
 
-const resolvedIndex = useMemo(() => {
-  if (status === STATUS_ENUM.REJECTED) return REJECTED_INDEX;
-  if (status === STATUS_ENUM.FAILED) return lastLinearIndexRef.current;
-  const idx = PIPELINE_STEPS.findIndex((s) => s.key === status);
-  return idx === -1 ? 0 : idx;
-}, [status]);
-
+  const resolvedIndex = useMemo(() => {
+    if (status === STATUS_ENUM.REJECTED) return REJECTED_INDEX;
+    if (status === STATUS_ENUM.FAILED) return lastLinearIndexRef.current;
+    const idx = PIPELINE_STEPS.findIndex((s) => s.key === status);
+    return idx === -1 ? 0 : idx;
+  }, [status]);
 
   if (!isTerminalError) {
     const idx = PIPELINE_STEPS.findIndex((s) => s.key === status);
@@ -146,40 +144,46 @@ const resolvedIndex = useMemo(() => {
     return () => cancelAnimationFrame(id);
   }, [resolvedIndex]);
 
-
-  useEffect(()=> {
+  useEffect(() => {
     fetchListingStatus();
-  },[])
+  }, []);
 
-  const fetchListingStatus = async()=> {
+  const fetchListingStatus = async () => {
     try {
-       const res = await fetch(`${import.meta.env.VITE_API_URL}/listings/${jobId}/status`);
-       const data = await res.json();
-       if(!data.data) navigate(-1)
-       setStatus(data.data)
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/listings/${jobId}/status`,
+      );
+      const data = await res.json();
+      if (!data.data) navigate(-1);
+      setStatus((prev) => {
+        if (prev === "PENDING") return data.data;
+        return prev;
+      });
     } catch (err) {
-      console.log(err)
-       toast.error("Oops! something went wrong")
-    } 
-  }
-  // const progress = (currentIndex / (PIPELINE_STEPS.length - 1)) * 100;
-
- useEffect(() => {
-  const handler = (data: {
-    jobId: string;
-    status: string;
-    errorMessage: null | string;
-    data: null | any;
-  }) => {
-    if (data.jobId == jobId) {
-      setStatus(data.status);
-      if (data.errorMessage) setErrorMsg(data.errorMessage);
+      console.log(err);
+      toast.error("Oops! something went wrong");
     }
   };
+  // const progress = (currentIndex / (PIPELINE_STEPS.length - 1)) * 100;
 
-  socket.on("job-status", handler);
-  return () => { socket.off("job-status", handler); }; // ← cleanup
-}, [socket, jobId]);
+  useEffect(() => {
+    const handler = (data: {
+      jobId: string;
+      status: string;
+      errorMessage: null | string;
+      data: null | any;
+    }) => {
+      if (data.jobId == jobId) {
+        setStatus(data.status);
+        if (data.errorMessage) setErrorMsg(data.errorMessage);
+      }
+    };
+
+    socket.on("job-status", handler);
+    return () => {
+      socket.off("job-status", handler);
+    }; // ← cleanup
+  }, [socket, jobId]);
 
   return (
     <>
@@ -362,4 +366,3 @@ const resolvedIndex = useMemo(() => {
 };
 
 export default PipelineLoader;
-
