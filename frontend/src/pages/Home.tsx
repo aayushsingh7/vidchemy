@@ -35,7 +35,7 @@ const Home = () => {
       return;
     }
 
-    if (!url.startsWith("https://www.instagram.com/reel")) {
+    if (!/^https:\/\/(www\.)?instagram\.com\/reel\//.test(url)) {
       toast.error("Only instagram reels are supported");
       return;
     }
