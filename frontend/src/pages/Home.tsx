@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import DropDown from "../components/DropDown";
 import { useGuestAccount } from "../hooks/useGuestAccount";
 import { useToast } from "../hooks/useToast";
+import DialogBox from "../components/DialogBox";
 
 const navigation: any[] = [];
 const productCategories = [
@@ -24,12 +25,14 @@ const Home = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [showDialog, setShowDialog] = useState<boolean>(false);
   const [productType, setProductType] = useState<string>("Jacket");
-  const [url, setUrl] = useState<string>("https://www.instagram.com/reel/DRBSbEgkSVy/");
+  const [url, setUrl] = useState<string>(
+    "https://www.instagram.com/reel/DRBSbEgkSVy/",
+  );
   const toast = useToast();
 
-  const createNewJob = async (e: any) => {
-    e.preventDefault();
+  const createNewJob = async (verified: boolean = false) => {
     if (!productType) {
       toast.error("Please select a product type");
       return;
@@ -40,8 +43,12 @@ const Home = () => {
       return;
     }
 
+    if (url !== "https://www.instagram.com/reel/DRBSbEgkSVy/" && !verified) {
+      setShowDialog(true);
+      return;
+    }
+    setShowDialog(false);
     setLoading(true);
-
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/ingest`, {
         method: "POST",
@@ -62,18 +69,32 @@ const Home = () => {
 
       navigate(`/status/${data.data.jobId}`);
     } catch (err: any) {
-      console.log(err)
+      console.log(err);
       toast.error(err.message);
     } finally {
-      setUrl("");
       setLoading(false);
-      setProductType("");
     }
   };
 
   return (
     <div className="polka-bg">
-      {/* <DropDown options={productCategories} /> */}
+      {showDialog && (
+        <DialogBox
+          title="Before We Start!"
+          bulletPoints={[
+            "Make sure the selected category matches the product in your video",
+            "Product must be clearly visible for at least 2-4 seconds",
+            "Video should feature only one product",
+            "Poor or unrelated videos will be auto-rejected",
+          ]}
+          btn1Text="Go Back"
+          btn1Style="bg-zinc-700 hover:bg-zinc-600"
+          btn2Style="bg-indigo-600 hover:bg-indigo-500"
+          btn2Text="Continue"
+          onBtn1Click={() => setShowDialog(false)}
+          onBtn2Click={() => createNewJob(true)}
+        />
+      )}
       <header className="absolute inset-x-0 top-0 z-50">
         <nav
           aria-label="Global"
@@ -169,7 +190,10 @@ const Home = () => {
             post and dominate the A9 algorithm.
           </p>
           <form
-            onSubmit={createNewJob}
+            onSubmit={(e) => {
+              e.preventDefault();
+              createNewJob(false);
+            }}
             className="mt-10 max-w-3xl flex items-center border gap-2 bg-gray-800 border-gray-500/30 h-17  w-full rounded-full"
           >
             <DropDown
