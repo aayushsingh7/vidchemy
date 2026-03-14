@@ -73,18 +73,18 @@ const worker = new Worker(
                 emitter.to(userId).emit("job-status", {jobId, status: jobStatus, errorMessage});
                 console.log("[STATUS]: Ingestion Job Completed");
             } catch (err) {
+                await redis.decr(`user:${userId}:active-jobs`);
                 await listingService.updateProcessingStatus({
                     currentStatus: "FAILED",
                     jobId: job.id,
-                    errorMessage: "Something Went Wrong",
+                    errorMessage:err.customMessage || "Something went wrong",
                 });
 
                 emitter
                 .to(job.data.userId)
-                .emit("job-status", {jobId: job.id, status: "FAILED", errorMessage: "Something Went Wrong"});
-                await redis.decr(`user:${userId}:active-jobs`);
+                .emit("job-status", {jobId: job.id, status: "FAILED", errorMessage: err.customMessage || "Something went wrong"});
 
-                console.log(`[INGESTION WORKER] Job ${job.id} failed:`, err);
+                console.log(`[INGESTION WORKER] Job ${job.id} failed:`, err.customMessage);
             }
         }
     },

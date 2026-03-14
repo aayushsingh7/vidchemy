@@ -338,8 +338,7 @@ class AIService {
                 } else if (status === "FAILED") {
                     console.error("Job failed:", getResponse.TranscriptionJob.FailureReason);
                     jobComplete = true;
-                    throw new Error("Transcribe Job Failed");
-                } else {
+                    throw new CustomError("Something went wrong while transcribing the video. Try again.");                } else {
                     process.stdout.write(".");
                     await new Promise((resolve) => setTimeout(resolve, 10000));
                 }

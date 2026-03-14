@@ -16,7 +16,7 @@ class IngestionService {
         }
         try {
             const activeJobCount = parseInt((await redis.get(`user:${userId}:active-jobs`)) || "0");
-            if (activeJobCount === 2) throw new CustomError("Only 2 concurrent processes are allowed, try again later");
+            if (activeJobCount === 2) throw new CustomError("Only 2 concurrent processes are allowed, try again later", 400);
             await redis.incr(`user:${userId}:active-jobs`);
 
             const jobId = randomUUID();

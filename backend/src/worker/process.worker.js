@@ -113,12 +113,12 @@ const worker = new Worker(
                 await listingService.updateProcessingStatus({
                     currentStatus: "FAILED",
                     jobId: job.id,
-                    errorMessage: "Something Went Wrong",
+                    errorMessage: err.customMessage || "Something Went Wrong",
                 });
 
                 emitter
                 .to(job.data.userId)
-                .emit("job-status", {jobId: job.id, status: "FAILED", errorMessage: "Something Went Wrong"});
+                .emit("job-status", {jobId: job.id, status: "FAILED", errorMessage:err.customMessage  ||  "Something Went Wrong"});
 
                 console.log(`[INGESTION WORKER] Job ${job.id} failed:`, err);
             } finally {
