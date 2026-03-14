@@ -120,14 +120,17 @@ const PipelineLoader = ({}) => {
   const socket = useSocket();
   const { jobId } = useParams();
   const { activeJobs } = useGlobalContext();
-  const [status, setStatus] = useState<string>(STATUS_ENUM.PENDING);
+  const [status, setStatus] = useState<string>(() => {
+    const activeJob = activeJobs.find((job: any) => job.jobId == jobId);
+    return activeJob?.processingStatus ?? STATUS_ENUM.PENDING;
+  });
   const [errorMsg, setErrorMsg] = useState<null | string>(null);
   const isTerminalError = TERMINAL_ERROR_STATES.includes(status);
   const lastLinearIndexRef = useRef(0);
   const toast = useToast();
   const navigate = useNavigate();
 
-  const resolvedIndex = useMemo(() => {
+  const currentIndex = useMemo(() => {
     if (status === STATUS_ENUM.REJECTED) return REJECTED_INDEX;
     if (status === STATUS_ENUM.FAILED) return lastLinearIndexRef.current;
     const idx = PIPELINE_STEPS.findIndex((s) => s.key === status);
@@ -139,19 +142,10 @@ const PipelineLoader = ({}) => {
     if (idx !== -1) lastLinearIndexRef.current = idx;
   }
 
-  const [currentIndex, setCurrentIndex] = useState(resolvedIndex);
-
-  useEffect(() => {
-    const id = requestAnimationFrame(() => setCurrentIndex(resolvedIndex));
-    return () => cancelAnimationFrame(id);
-  }, [resolvedIndex]);
-
   useEffect(() => {
     const isActiveJob = activeJobs.find((job: any) => job.jobId == jobId);
     if (!isActiveJob) {
       fetchListingStatus();
-    } else {
-      setStatus(isActiveJob.processingStatus);
     }
   }, []);
 

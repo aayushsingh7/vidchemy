@@ -82,9 +82,7 @@ const Home = () => {
       console.log(err);
       toast.error(err.message);
     } finally {
-      setUrl("");
       setLoading(false);
-      setProductType("");
     }
   };
 
