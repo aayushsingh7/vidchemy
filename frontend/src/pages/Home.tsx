@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import DropDown from "../components/DropDown";
 import { useGuestAccount } from "../hooks/useGuestAccount";
 import { useToast } from "../hooks/useToast";
+import DialogBox from "../components/DialogBox";
 
 const navigation: any[] = [];
 const productCategories = [
@@ -34,14 +35,14 @@ const Home = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [showDialog, setShowDialog] = useState<boolean>(false);
   const [productType, setProductType] = useState<string>("Jacket");
   const [url, setUrl] = useState<string>(
     "https://www.instagram.com/reel/DRBSbEgkSVy/",
   );
   const toast = useToast();
 
-  const createNewJob = async (e: any) => {
-    e.preventDefault();
+  const createNewJob = async (verified: boolean = false) => {
     if (!productType) {
       toast.error("Please select a product type");
       return;
@@ -52,8 +53,12 @@ const Home = () => {
       return;
     }
 
+    if (url !== "https://www.instagram.com/reel/DRBSbEgkSVy/" && !verified) {
+      setShowDialog(true);
+      return;
+    }
+    setShowDialog(false);
     setLoading(true);
-
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/ingest`, {
         method: "POST",
@@ -145,6 +150,23 @@ const Home = () => {
 
   return (
     <div className="bg-zinc-900">
+      {showDialog && (
+        <DialogBox
+          title="Before We Start!"
+          bulletPoints={[
+            "Make sure the selected category matches the product in your video",
+            "Product must be clearly visible for at least 2-4 seconds",
+            "Video should feature only one product",
+            "Poor or unrelated videos will be auto-rejected",
+          ]}
+          btn1Text="Go Back"
+          btn1Style="bg-zinc-700 hover:bg-zinc-600"
+          btn2Style="bg-indigo-600 hover:bg-indigo-500"
+          btn2Text="Continue"
+          onBtn1Click={() => setShowDialog(false)}
+          onBtn2Click={() => createNewJob(true)}
+        />
+      )}
       <section className="relative min-h-[100dvh] overflow-hidden bg-zinc-950">
         <div
           className="absolute inset-0 z-0"
@@ -298,7 +320,13 @@ const Home = () => {
             Reel and dominate the A9 algorithm - automatically.
           </p>
 
-          <form onSubmit={createNewJob} className="mt-10 w-full max-w-2xl">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              createNewJob(false);
+            }}
+            className="mt-10 w-full max-w-2xl"
+          >
             <div className="flex items-center gap-2 bg-zinc-900 border border-gray-500/30 rounded-2xl p-2 shadow-[0_0_40px_rgba(99,102,241,0.08)]">
               <DropDown
                 options={productCategories}

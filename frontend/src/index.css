@@ -5,6 +5,10 @@
   font-family: 'Inter', sans-serif;
 }
 
+button{
+  cursor: pointer;
+}
+
 @layer base {
   * {
     margin: 0;
