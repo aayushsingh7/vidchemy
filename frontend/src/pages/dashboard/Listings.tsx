@@ -3,6 +3,7 @@ import ProductBox from "../../components/ProductBox";
 import Loader from "../../components/Loader";
 import { useGuestAccount } from "../../hooks/useGuestAccount";
 import { useToast } from "../../hooks/useToast";
+import NoDataTemplate from "../../components/NoDataTemplate";
 
 const Listings = () => {
   const guestId = useGuestAccount();
@@ -37,11 +38,15 @@ const Listings = () => {
         Listings
       </h2>
 
-      <div>
-        {listings.map((data: any) => {
-          return <ProductBox data={data} />;
-        })}
-      </div>
+      {!listings.length ? (
+        <NoDataTemplate text="No Listings Available" height={200} />
+      ) : (
+        <div>
+          {listings.map((data: any) => {
+            return <ProductBox data={data} />;
+          })}
+        </div>
+      )}
     </main>
   );
 };

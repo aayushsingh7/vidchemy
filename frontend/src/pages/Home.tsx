@@ -62,7 +62,8 @@ const Home = () => {
 
       navigate(`/status/${data.data.jobId}`);
     } catch (err: any) {
-      toast.error("Oops! something went wrong");
+      console.log(err)
+      toast.error(err.message);
     } finally {
       setUrl("");
       setLoading(false);

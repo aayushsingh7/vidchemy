@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSocket } from "../contexts/socketContext";
 import { useToast } from "../hooks/useToast";
+import { useGlobalContext } from "../contexts/globalContext";
 
 const STATUS_ENUM = {
   PENDING: "PENDING",
@@ -118,6 +119,7 @@ function StatusIndicator({
 const PipelineLoader = ({}) => {
   const socket = useSocket();
   const { jobId } = useParams();
+  const { activeJobs } = useGlobalContext();
   const [status, setStatus] = useState<string>(STATUS_ENUM.PENDING);
   const [errorMsg, setErrorMsg] = useState<null | string>(null);
   const isTerminalError = TERMINAL_ERROR_STATES.includes(status);
@@ -145,7 +147,12 @@ const PipelineLoader = ({}) => {
   }, [resolvedIndex]);
 
   useEffect(() => {
-    fetchListingStatus();
+    const isActiveJob = activeJobs.find((job: any) => job.jobId == jobId);
+    if (!isActiveJob) {
+      fetchListingStatus();
+    } else {
+      setStatus(isActiveJob.processingStatus);
+    }
   }, []);
 
   const fetchListingStatus = async () => {

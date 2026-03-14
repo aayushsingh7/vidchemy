@@ -26,7 +26,7 @@ const ProductBox: React.FC<ProductBoxProps> = ({ data }) => {
       <div className="w-full sm:w-35 h-35 flex-shrink-0 flex items-center justify-center bg-white rounded-md p-2 shadow-inner">
         <div className="block w-full h-full">
           <img
-            src={data.medias[0]}
+            src={data?.medias[0] || "https://i.sstatic.net/y9DpT.jpg"}
             alt={data.title}
             className="w-full h-full object-contain"
           />

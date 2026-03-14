@@ -123,7 +123,7 @@ const DashboardHome = () => {
             return (
               <figure onClick={()=> navigate(`/dashboard/listings/${data._id}`)} className="p-3 border-2 border-gray-500/30 flex items-center gap-4">
                 <img
-                  src={data.medias[0]}
+                  src={data?.medias[0] || "https://i.sstatic.net/y9DpT.jpg"}
                   className="w-30 h-30 rounded-[10px] bg-white"
                 />
                 <figcaption>
