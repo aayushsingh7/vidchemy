@@ -112,7 +112,7 @@ function StatusIndicator({
     );
   }
   return (
-    <div className="w-9 h-9 rounded-full border-2 bg-gray-800 border-gray-600/50 flex-shrink-0" />
+    <div className="w-9 h-9 rounded-full border-2 bg-zinc-800 border-gray-600/50 flex-shrink-0" />
   );
 }
 
@@ -194,7 +194,7 @@ const PipelineLoader = ({}) => {
 
   return (
     <>
-      <div className="select-none relative font-inter pipeline-root bg-gray-900 h-[100dvh] flex flex-col items-center justify-center">
+      <div className="select-none relative font-inter pipeline-root bg-zinc-900 h-[100dvh] flex flex-col items-center justify-center">
         <div className="w-full max-w-[700px]">
           <div className="mb-6">
             {/* <div className="flex items-start justify-between">
@@ -238,7 +238,7 @@ const PipelineLoader = ({}) => {
             </div>
             {/* Progress bar */}
             {/* <div className="mt-4">
-              <div className="h-[5px] bg-gray-800 rounded-full overflow-hidden">
+              <div className="h-[5px] bg-zinc-800 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-700 ease-out"
                   style={{
@@ -298,7 +298,7 @@ const PipelineLoader = ({}) => {
                     willChange: "transform, opacity",
                   }}
                 >
-                  <div className="flex items-start gap-4 px-5 py-6 rounded-[10px] bg-gray-800 border-2 border-gray-500/30 ">
+                  <div className="flex items-start gap-4 px-5 py-6 rounded-[10px] bg-zinc-800 border-2 border-gray-500/30 ">
                     <div className="mt-0.5">
                       <StatusIndicator
                         isCompleted={status == "COMPLETED" || isCompleted}

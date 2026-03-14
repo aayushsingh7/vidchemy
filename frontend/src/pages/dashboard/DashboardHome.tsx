@@ -72,14 +72,14 @@ const DashboardHome = () => {
   ];
 
   return (
-    <main className="font-inter flex-1 overflow-y-auto px-6 text-gray-300 w-full bg-gray-900 h-[100dvh]">
+    <main className="font-inter flex-1 overflow-y-auto px-6 text-gray-300 w-full bg-zinc-900 h-[100dvh]">
       <h2 className="text-2xl h-16 font-semibold text-white flex items-center gap-3">
         Overview
       </h2>
       <section className="grid grid-cols-4 gap-2 mb-10">
         {overviewCards.map((data:any) => {
           return (
-            <div className="p-3 px-5 bg-gray-900 border-2 border-gray-500/30 rounded-[10px]">
+            <div className="p-3 px-5 bg-zinc-900 border-2 border-gray-500/30 rounded-[10px]">
               <h3 className="text-md font-bold text-gray-400 mb-5">
                 {data.heading}
               </h3>

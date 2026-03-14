@@ -9,7 +9,6 @@ import { useParams } from "react-router-dom";
 import Loader from "../../components/Loader";
 import ImageCropper from "../../layouts/ImageCropper";
 import { useToast } from "../../hooks/useToast";
-
 interface ListingData {
   title: string;
   description: string;
@@ -47,7 +46,7 @@ const CopyButton = ({
   return (
     <button
       onClick={handleCopy}
-      className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 focus:outline-none transition-all"
+      className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 bg-zinc-100 border border-gray-300 rounded hover:bg-zinc-200 focus:outline-none transition-all"
       title="Copy to clipboard"
     >
       {copied ? (
@@ -66,7 +65,7 @@ const Listing = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [showCrop, setShowCrop] = useState<boolean>(false);
   const [mainImage, setMainImage] = useState<string>(
-    "https://unbredbombers.ca/wp-content/uploads/2018/05/no-image-1.jpg",
+    "https://i.sstatic.net/y9DpT.jpg",
   );
   const toast = useToast();
 
@@ -79,7 +78,7 @@ const Listing = () => {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/listings/${id}`);
       const data = await res.json();
       setData(data.data);
-      setMainImage(data.data.medias[0]);
+      setMainImage(data.data?.medias[0] || "https://i.sstatic.net/y9DpT.jpg");
     } catch (err) {
       toast.error("Oops! something went wrong, please try again");
     } finally {
@@ -95,11 +94,11 @@ const Listing = () => {
         <ImageCropper imageUrl={mainImage} onClose={() => setShowCrop(false)} />
       )}
       <div className="flex flex-col justify-between items-start mb-6 rounded-t-md text-md">
-        <div className="flex justify-start p-4 bg-gray-50 border-b border-gray-300 w-full">
+        <div className="flex justify-start p-4 bg-zinc-50 border-b border-gray-300 w-full">
           <span className="font-semibold text-gray-700 mr-3">Category: </span>
           <span className="text-gray-600">{data.suggestedCategory}</span>
         </div>
-        <div className="mt-2 md:mt-0 flex items-center gap-2 p-4 bg-gray-50 border-b border-gray-300">
+        <div className="mt-2 md:mt-0 flex items-center gap-2 p-4 bg-zinc-50 border-b border-gray-300">
           <span className="font-semibold text-gray-700 ">
             Backend Search Terms:
           </span>
@@ -131,7 +130,8 @@ const Listing = () => {
                 alt="Main Product"
                 className="w-full h-auto object-cover max-h-[500px]"
               />
-              <button
+              {mainImage == "https://i.sstatic.net/y9DpT.jpg" ? <p>No clear image could be extracted from this video.</p> : <>
+               <button
                 onClick={() => setShowCrop(true)}
                 className="absolute left-0 top-0 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
               >
@@ -150,6 +150,7 @@ const Listing = () => {
                   );
                 })}
               </div>
+              </>}
             </div>
           </div>
 
@@ -288,7 +289,7 @@ const Listing = () => {
                   key={index}
                   className="flex border-b border-r border-gray-200"
                 >
-                  <div className="w-1/2 bg-gray-100 p-2 font-semibold text-gray-700">
+                  <div className="w-1/2 bg-zinc-100 p-2 font-semibold text-gray-700">
                     {spec.key}
                   </div>
                   <div className="w-1/2 p-2 text-gray-900 bg-white">
