@@ -42,18 +42,21 @@ const worker = new Worker(
                     productType,
                 });
 
-                let jobStatus = "QUEUED",
-                    errorMessage = "";
                 if (result.isRejected) {
                     await redis.decr(`user:${userId}:active-jobs`);
-                    jobStatus = "REJECTED";
-                    errorMessage = result.response.join("\n");
+                    const errorMessage = result.response.join("\n");
                     await listingService.updateProcessingStatus({
                         currentStatus: jobStatus,
                         jobId,
-                        errorMessage: result.reasons.join("\n"),
+                        errorMessage,
                     });
+                    emitter.to(userId).emit("job-status", {jobId, status: "REJECTED", errorMessage});
                 } else {
+                    await listingService.updateProcessingStatus({
+                        currentStatus: "QUEUED",
+                        jobId,
+                    });
+                    emitter.to(userId).emit("job-status", {jobId, status: "QUEUED", errorMessage:""});
                     await processingQueue.add(
                         "process-video",
                         {
@@ -65,24 +68,21 @@ const worker = new Worker(
                         },
                         {jobId}
                     );
-                    await listingService.updateProcessingStatus({
-                        currentStatus: jobStatus,
-                        jobId,
-                    });
                 }
-                emitter.to(userId).emit("job-status", {jobId, status: jobStatus, errorMessage});
                 console.log("[STATUS]: Ingestion Job Completed");
             } catch (err) {
                 await redis.decr(`user:${userId}:active-jobs`);
                 await listingService.updateProcessingStatus({
                     currentStatus: "FAILED",
                     jobId: job.id,
-                    errorMessage:err.customMessage || "Something went wrong",
+                    errorMessage: err.customMessage || "Something went wrong",
                 });
 
-                emitter
-                .to(job.data.userId)
-                .emit("job-status", {jobId: job.id, status: "FAILED", errorMessage: err.customMessage || "Something went wrong"});
+                emitter.to(job.data.userId).emit("job-status", {
+                    jobId: job.id,
+                    status: "FAILED",
+                    errorMessage: err.customMessage || "Something went wrong",
+                });
 
                 console.log(`[INGESTION WORKER] Job ${job.id} failed:`, err.customMessage);
             }

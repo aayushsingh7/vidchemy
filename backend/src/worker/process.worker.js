@@ -33,11 +33,11 @@ const worker = new Worker(
             const jobId = job.id;
 
             try {
-                emitter.to(userId).emit("job-status", {jobId, status: "PROCESSING", errorMessage: ""});
                 await listingService.updateProcessingStatus({
                     currentStatus: "PROCESSING",
                     jobId,
                 });
+                emitter.to(userId).emit("job-status", {jobId, status: "PROCESSING", errorMessage: ""});
 
                 console.log("[STATUS]: Start Video Transcribing...");
                 const videoTranscription = await aiService.transcribeS3Video({
