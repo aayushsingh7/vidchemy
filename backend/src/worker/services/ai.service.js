@@ -177,7 +177,7 @@ class AIService {
         }
     }
 
-    async draftOptimizedListing({referenceProducts, originalProduct}) {
+    async draftOptimizedListing({referenceProducts, originalProduct, outputCurrency}) {
         const formattedReferenceProduct = referenceProducts.map((product, index) =>
             formatReferenceProduct(product, index + 1)
         );
@@ -204,6 +204,7 @@ class AIService {
                             text: op.user({
                                 referenceProducts: formattedReferenceProduct,
                                 originalProduct: formattedOriginalProduct,
+                                outputCurrency,
                             }),
                         },
                     ],

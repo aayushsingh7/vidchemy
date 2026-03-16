@@ -39,6 +39,16 @@ const worker = new Worker(
                 });
                 emitter.to(userId).emit("job-status", {jobId, status: "PROCESSING", errorMessage: ""});
 
+                let currencyCode = "INR";
+
+                try {
+                    const locationRes = await fetch("https://ipapi.co/json");
+                    const location = await locationRes.json();
+                    currencyCode = location?.currency || "INR";
+                } catch (err) {
+                    currencyCode = "INR";
+                }
+
                 console.log("[STATUS]: Start Video Transcribing...");
                 const videoTranscription = await aiService.transcribeS3Video({
                     bucketName: process.env.AWS_S3_BUCKET_NAME,
@@ -61,7 +71,10 @@ const worker = new Worker(
                     website: primarySourceUrl,
                     additionalContext,
                 });
-                const p2 = scraperService.searchAmazonProducts({query: videoAnalysisResult.productLabel});
+                const p2 = scraperService.searchAmazonProducts({
+                    query: videoAnalysisResult.productLabel,
+                    domain: currencyCode == "INR" ? "www.amazon.in" : "www.amazon.com",
+                });
                 const p3 = ffmpegService.extractProductFramesBatched({
                     s3Key,
                     frameData: videoAnalysisResult.topProductMoments,
@@ -73,6 +86,7 @@ const worker = new Worker(
                 console.log("[STATUS]: Started Scraping Detailed Product Data...");
                 const productDetails = await scraperService.fetchAmazonProducts({
                     searchResults: amazonSearchResponse.slice(0, 3), // top 3 products
+                    domain: currencyCode == "INR" ? "www.amazon.in" : "www.amazon.com",
                 });
 
                 console.log("[STATUS]: Scraped top 3 products data successfully", productDetails);
@@ -80,6 +94,7 @@ const worker = new Worker(
                 const listingGenerationPromise = aiService.draftOptimizedListing({
                     originalProduct: JSON.parse(researchResponse),
                     referenceProducts: productDetails,
+                    outputCurrency:currencyCode
                 });
 
                 const backgroundRemovalPromise = aiService.backgroundRemoval(ffmpegResponse.filter(Boolean));
@@ -96,7 +111,6 @@ const worker = new Worker(
                     backgroundRemovalPromise,
                 ]);
 
-
                 console.log("[STATUS]: Main pipeline [PART 2] executed successfully");
                 console.log("[STATUS]: Saving The generated listing into the DB");
                 const listing = await listingService.updateListingById({
@@ -108,7 +122,7 @@ const worker = new Worker(
                     },
                 });
                 emitter.to(userId).emit("job-status", {jobId, status: "COMPLETED", errorMessage: "", data: listing});
-                console.log("[STATUS]: Listing Saved Successfully [JOB COMPLETED]", {listing});
+                console.log("[STATUS]: Listing Saved Successfully [JOB COMPLETED]");
             } catch (err) {
                 await listingService.updateProcessingStatus({
                     currentStatus: "FAILED",
@@ -116,9 +130,11 @@ const worker = new Worker(
                     errorMessage: err.customMessage || "Something Went Wrong",
                 });
 
-                emitter
-                .to(job.data.userId)
-                .emit("job-status", {jobId: job.id, status: "FAILED", errorMessage:err.customMessage  ||  "Something Went Wrong"});
+                emitter.to(job.data.userId).emit("job-status", {
+                    jobId: job.id,
+                    status: "FAILED",
+                    errorMessage: err.customMessage || "Something Went Wrong",
+                });
 
                 console.log(`[INGESTION WORKER] Job ${job.id} failed:`, err);
             } finally {

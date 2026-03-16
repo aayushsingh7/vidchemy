@@ -21,7 +21,7 @@ class ListingService {
         const [listings, listingCnt] = await Promise.all([
             Listing.find({guestId: userId, processingStatus: "COMPLETED"})
             .select(
-                "_id title medias description attributes.estimatedOriginalPriceINR attributes.estimatedPriceINR attributes.estimatedDiscountPercent"
+                "_id title medias description attributes.price"
             )
             .skip(offset)
             .limit(limit)

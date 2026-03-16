@@ -22,9 +22,13 @@ const listingSchema = new Schema(
             color: {type: String},
             material: {type: String},
             targetAudience: {type: String},
-            estimatedOriginalPriceINR: {type: Number},
-            estimatedPriceINR: {type: Number},
-            estimatedDiscountPercent: {type: Number},
+            price: {
+                currencyCode: {type: String},
+                currencyName: {type: String},
+                estimatedOriginalPrice: {type: Number},
+                estimatedPrice: {type: Number},
+                estimatedDiscountPercent: {type: Number},
+            },
         },
         medias: [{type: String}],
         processingStatus: {

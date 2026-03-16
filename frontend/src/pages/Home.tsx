@@ -102,7 +102,7 @@ const Home = () => {
     {
       title: "SEO & Listing Copy",
       description:
-        "Optimized titles, bullet points, and keywords tailored for Amazon's A9 algorithm - written in seconds.",
+        "Optimized titles, bullet points, and keywords tailored for Amazon's A10 algorithm - written in seconds.",
       icon: <ChartBarIcon className="text-indigo-500 w-7" />,
     },
     {
@@ -136,7 +136,7 @@ const Home = () => {
       step: "04",
       icon: <BoltIcon className="w-6 h-6" />,
       title: "Listing Generated",
-      desc: "SEO titles, bullets, keywords — all optimized for A9.",
+      desc: "SEO titles, bullets, keywords — all optimized for A10.",
     },
     {
       step: "05",
@@ -315,7 +315,7 @@ const Home = () => {
 
           <p className="mt-8 text-lg sm:text-xl text-gray-400 max-w-2xl leading-relaxed">
             Stop wasting days on copywriting. Let AI extract the gold from your
-            Reel and dominate the A9 algorithm - automatically.
+            Reel and dominate the A10 algorithm - automatically.
           </p>
 
           <form
@@ -366,7 +366,7 @@ const Home = () => {
             {[
               { value: "7×", label: "Faster than manual" },
               { value: "~2 min", label: "Per listing" },
-              { value: "A9", label: "Algorithm optimized" },
+              { value: "A10", label: "Algorithm optimized" },
             ].map((stat, i) => (
               <div key={i} className="flex flex-col items-center">
                 <span className="text-white font-bold text-2xl">

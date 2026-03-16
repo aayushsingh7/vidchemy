@@ -21,9 +21,13 @@ interface ListingData {
     color: string;
     material: string;
     targetAudience: string;
-    estimatedOriginalPriceINR: number;
-    estimatedPriceINR: number;
-    estimatedDiscountPercent: number;
+    price: {
+      currencyCode: string;
+      currencyName: string;
+      estimatedOriginalPrice: number;
+      estimatedPrice: number;
+      estimatedDiscountPercent: number;
+    };
   };
   medias: string[];
 }
@@ -85,6 +89,10 @@ const Listing = () => {
       setLoading(false);
     }
   }
+
+  const isINR = data?.attributes?.price?.currencyCode === "INR";
+  const locale = isINR ? "en-IN" : "en-US";
+  const symbol = isINR ? "₹" : "$";
 
   if (loading) return <Loader />;
 
@@ -190,19 +198,21 @@ const Listing = () => {
             <div>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl text-red-600 font-light">
-                  -{data.attributes.estimatedDiscountPercent}%
+                  -{data.attributes.price.estimatedDiscountPercent}%
                 </span>
                 <span className="text-3xl font-medium text-gray-900">
-                  <span className="text-sm align-top font-normal pr-1">₹</span>
-                  {data.attributes.estimatedPriceINR.toLocaleString("en-IN")}
+                  <span className="text-sm align-top font-normal pr-1">
+                    {symbol}
+                  </span>
+                  {data.attributes.price.estimatedPrice.toLocaleString(locale)}
                 </span>
               </div>
               <div className="text-sm text-gray-500 mt-1">
                 M.R.P.:{" "}
                 <span className="line-through">
-                  ₹
-                  {data.attributes.estimatedOriginalPriceINR.toLocaleString(
-                    "en-IN",
+                  {symbol}
+                  {data.attributes.price.estimatedOriginalPrice.toLocaleString(
+                    locale,
                   )}
                 </span>
               </div>
