@@ -7,7 +7,6 @@ import {
   MagnifyingGlassIcon,
   BoltIcon,
   ArrowUpTrayIcon,
-  RocketLaunchIcon,
 } from "@heroicons/react/24/solid";
 import { ArrowLongRightIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
@@ -136,15 +135,15 @@ const Home = () => {
       step: "04",
       icon: <BoltIcon className="w-6 h-6" />,
       title: "Listing Generated",
-      desc: "SEO titles, bullets, keywords — all optimized for A10.",
+      desc: "SEO titles, bullets, keywords - all optimized for A10.",
     },
-    {
-      step: "05",
-      icon: <RocketLaunchIcon className="w-6 h-6" />,
-      title: "Publish & Sell",
-      desc: "Export directly to Amazon or Flipkart Seller Central.",
-    },
-  ];
+    // {
+    //   step: "05",
+    //   icon: <RocketLaunchIcon className="w-6 h-6" />,
+    //   title: "Publish & Sell",
+    //   desc: "Export directly to Amazon or Flipkart Seller Central.",
+    // },
+    ];
 
   return (
     <div className="bg-zinc-900">
@@ -425,7 +424,7 @@ const Home = () => {
           <div className="relative mt-20 z-10">
             <div className="absolute top-9 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-600 to-transparent hidden lg:block" />
 
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {steps.map((item, i) => (
                 <div
                   key={i}
