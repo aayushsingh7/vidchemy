@@ -219,7 +219,46 @@ export const BEDROCK_VIDEO_ANALYSIS = {
   user: ({ productType, title, description }) => {
     return "User Prompt Here";
   },
-  responseSchema: {},
+  responseSchema: {
+        type: "object",
+        properties: {
+            isRejected: {
+                type: "boolean",
+                description:
+                    "True if the video is unsafe, lacks a product, lacks brand/model info, or contains multiple different products.",
+            },
+            reasons: {
+                type: "array",
+                items: {type: "string"},
+                description: "Reasons for rejection. Empty if isRejected is false.",
+            },
+            hasTopProductMoments: {
+                type: "boolean",
+                description: "True if there is at least one pristine moment of the product.",
+            },
+            topProductMoments: {
+                type: "array",
+                items: {type: "integer"},
+                description:
+                    "Array of exact timestamps (in milliseconds) showing the product in focus. Aim for 6-7 timestamps. Backgrounds, shadows, and holding hands are acceptable as long as the product itself is not obstructed.",
+            },
+            productLabel: {
+                type: "string",
+                description: "A generic category label for AWS Rekognition.",
+            },
+            brand: {type: "string"},
+            productModel: {type: "string"},
+        },
+        required: [
+            "isRejected",
+            "reasons",
+            "hasTopProductMoments",
+            "topProductMoments",
+            "productLabel",
+            "brand",
+            "productModel",
+        ],
+    },
 };
 
 export const PERPLEXITY_PRODUCT_RESEARCH = {
@@ -227,7 +266,111 @@ export const PERPLEXITY_PRODUCT_RESEARCH = {
   user: ({ website, productName, additionalContext }) => {
     return "User Prompt Here";
   },
-  responseSchema: {},
+  responseSchema: {
+        type: "json_schema",
+        json_schema: {
+            name: "universal_product_details",
+            strict: true,
+            schema: {
+                type: "object",
+                properties: {
+                    product_name: {type: "string"},
+                    brand: {type: "string"},
+                    model_or_style_code: {
+                        type: "string",
+                        description:
+                            "Model number for tech/appliances, or style code for clothing/shoes. Empty if not applicable.",
+                    },
+                    category: {type: "string"},
+                    description: {type: "string"},
+                    key_features: {
+                        type: "array",
+                        items: {type: "string"},
+                        minItems: 3,
+                    },
+                    specifications: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                attribute_name: {
+                                    type: "string",
+                                    description: "e.g., Material, Battery Life, Fit, Recommended Age",
+                                },
+                                attribute_value: {
+                                    type: "string",
+                                    description: "e.g., 100% Cotton, 40 hours, Slim Fit, 8-12 Years",
+                                },
+                            },
+                            required: ["attribute_name", "attribute_value"],
+                            additionalProperties: false,
+                        },
+                    },
+                    physical_details: {
+                        type: "object",
+                        properties: {
+                            weight: {type: "string"},
+                            dimensions: {type: "string"},
+                            primary_material: {
+                                type: "string",
+                                description: "e.g., Cotton, Plastic, Stainless Steel, Mixed",
+                            },
+                        },
+                        additionalProperties: false,
+                    },
+                    care_instructions: {
+                        type: "string",
+                        description:
+                            "How to clean/maintain. e.g., 'Machine wash cold' or 'Wipe with damp cloth'. Empty if n/a.",
+                    },
+
+                    price: {
+                        type: "object",
+                        properties: {
+                            current_price: {type: "number"},
+                            original_price: {type: "number"},
+                            currency: {type: "string"},
+                            discount_percent: {type: "number"},
+                        },
+                        required: ["current_price", "currency"],
+                        additionalProperties: false,
+                    },
+                    variants: {
+                        type: "object",
+                        properties: {
+                            colors_available: {type: "array", items: {type: "string"}},
+                            sizes_available: {type: "array", items: {type: "string"}},
+                        },
+                        additionalProperties: false,
+                    },
+
+                    images: {type: "array", items: {type: "string"}},
+                    warranty_or_guarantee: {type: "string"},
+
+                    marketplace_links: {
+                        type: "object",
+                        properties: {
+                            amazon: {type: "string"},
+                            flipkart: {type: "string"},
+                            official: {type: "string"},
+                            other: {type: "string"},
+                        },
+                        additionalProperties: false,
+                    },
+                },
+                required: [
+                    "product_name",
+                    "brand",
+                    "category",
+                    "description",
+                    "key_features",
+                    "specifications",
+                    "price",
+                ],
+                additionalProperties: false,
+            },
+        },
+    },
 };
 
 export const BEDROCK_LISTING_GENERATION = {
@@ -235,7 +378,123 @@ export const BEDROCK_LISTING_GENERATION = {
   user: ({ referenceProducts, originalProduct }) => {
     return "User Prompt Here";
   },
-  responseSchema: {},
+  responseSchema: {
+        type: "object",
+        properties: {
+            title: {
+                type: "string",
+                description: "SEO-optimized title. Min 150 chars, max 200 chars. Primary keyword in first 5 words.",
+            },
+            description: {
+                type: "string",
+                description: "Persuasive plain-text description. Min 1800 chars, max 2000 chars. No HTML.",
+            },
+            bulletPoints: {
+                type: "array",
+                items: {
+                    type: "string",
+                    minLength: 200,
+                    maxLength: 256,
+                    description:
+                        "Each bullet: ALL-CAPS HOOK (4-6 words) — full benefit explanation with secondary keywords, emotional trigger, and use case. 200-256 characters.",
+                },
+                minItems: 5,
+                maxItems: 5,
+            },
+            searchTerms: {
+                type: "array",
+                items: {type: "string"},
+                minItems: 15,
+                maxItems: 20,
+                description:
+                    "Backend search terms. Zero overlap with title words. Total ≤250 bytes. Include misspellings, colloquialisms, use-case terms, demographic terms.",
+            },
+            suggestedCategory: {
+                type: "string",
+                description: "Full Amazon browse node path. Format: Top > Sub > Leaf Category.",
+            },
+            specifications: {
+                type: "array",
+                minItems: 10,
+                items: {
+                    type: "object",
+                    properties: {
+                        key: {
+                            type: "string",
+                            description:
+                                "Amazon standard attribute name (e.g., 'Connectivity Technology', 'Battery Life', 'Item Weight')",
+                        },
+                        value: {
+                            type: "string",
+                            description: "Precise technical value (e.g., 'Bluetooth 5.3', '40 Hours', '250 Grams')",
+                        },
+                    },
+                    required: ["key", "value"],
+                },
+                description:
+                    "Minimum 10 technical spec pairs using Amazon standard attribute naming for backend filter indexing.",
+            },
+            attributes: {
+                type: "object",
+                properties: {
+                    brand: {type: "string"},
+                    color: {type: "string"},
+                    material: {type: "string"},
+                    targetAudience: {
+                        type: "string",
+                        description:
+                            "Specific demographic description (e.g., 'Remote workers and frequent travelers aged 25-45'), not generic.",
+                    },
+                    price: {
+                        type: "object",
+                        properties: {
+                            currencyCode: {
+                                type: "string",
+                                description:
+                                    "Currency code matched EXACTLY from reference product pricing (e.g., INR, USD, GBP, EUR).",
+                            },
+                            currencyName: {
+                                type: "string",
+                                description: "Full currency name (e.g., Indian Rupee, US Dollar, British Pound).",
+                            },
+                            estimatedOriginalPrice: {
+                                type: "number",
+                                description:
+                                    "MRP / anchor price. Set 40-60% above selling price to maximize perceived discount value.",
+                            },
+                            estimatedPrice: {
+                                type: "number",
+                                description:
+                                    "Competitive selling price. Undercut top-rated competitor by 8-15% to capture price-sensitive buyers.",
+                            },
+                            estimatedDiscountPercent: {
+                                type: "number",
+                                description:
+                                    "Discount percentage. Target 30-50% range for maximum algorithm-boosted deal visibility.",
+                            },
+                        },
+                        required: [
+                            "currencyCode",
+                            "currencyName",
+                            "estimatedOriginalPrice",
+                            "estimatedPrice",
+                            "estimatedDiscountPercent",
+                        ],
+                    },
+                },
+                required: ["brand", "color", "material", "targetAudience", "price"],
+            },
+        },
+        required: [
+            "title",
+            "description",
+            "bulletPoints",
+            "searchTerms",
+            "suggestedCategory",
+            "specifications",
+            "attributes",
+        ],
+    },
 };
 ```
 
