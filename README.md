@@ -78,18 +78,9 @@ What used to take **5+ hours** now takes **under 5 minutes**.
 
 ## How It Works
 
-```
-1. Upload Reel      → User pastes Instagram Reel URL + selects product category
-2. Ingest & Validate → AWS S3 upload + Bedrock Video Analysis filters for relevance/safety
-3. Parallel Processing:
-      ├─ FFmpeg extracts best product frames (Bedrock-identified timestamps)
-      ├─ AWS Transcribe converts audio narration to text
-      ├─ Scraper fetches top Amazon competitor listings
-      └─ Perplexity gathers additional product context
-4. AI Enhancement   → AWS Bedrock Titan removes background → clean product image → S3
-5. Listing Generation → AWS Bedrock Nova Pro synthesizes all context → SEO-optimized listing
-6. Save & Deliver   → Final listing stored in MongoDB, served to dashboard instantly
-```
+
+![VidChemy Process Flow Diagram](https://res.cloudinary.com/dvk80x6fi/image/upload/v1773211805/..._lijddi.jpg)  
+*A high-level view of how a video is ingested, analyzed, and transformed into a final e-commerce listing.*
 
 ---
 
