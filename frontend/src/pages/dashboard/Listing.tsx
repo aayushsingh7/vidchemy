@@ -22,9 +22,13 @@ interface ListingData {
     color: string;
     material: string;
     targetAudience: string;
-    estimatedOriginalPriceINR: number;
-    estimatedPriceINR: number;
-    estimatedDiscountPercent: number;
+    price: {
+      currencyCode: string;
+      currencyName: string;
+      estimatedOriginalPrice: number;
+      estimatedPrice: number;
+      estimatedDiscountPercent: number;
+    };
   };
   medias: string[];
 }
@@ -87,6 +91,10 @@ const Listing = () => {
     }
   }
 
+  const isINR = data?.attributes?.price?.currencyCode === "INR";
+  const locale = isINR ? "en-IN" : "en-US";
+  const symbol = isINR ? "₹" : "$";
+
   if (loading) return <Loader />;
 
   return (
@@ -99,7 +107,7 @@ const Listing = () => {
           <span className="font-semibold text-gray-700 mr-3">Category: </span>
           <span className="text-gray-600">{data.suggestedCategory}</span>
         </div>
-        <div className="mt-2 md:mt-0 flex items-center gap-2 p-4 bg-gray-50 border-b border-gray-300">
+        <div className="mt-2 md:mt-0 flex items-center gap-2 p-4 bg-gray-50 border-b border-gray-300 w-full justify-between">
           <span className="font-semibold text-gray-700 ">
             Backend Search Terms:
           </span>
@@ -189,19 +197,21 @@ const Listing = () => {
             <div>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl text-red-600 font-light">
-                  -{data.attributes.estimatedDiscountPercent}%
+                  -{data.attributes.price.estimatedDiscountPercent}%
                 </span>
                 <span className="text-3xl font-medium text-gray-900">
-                  <span className="text-sm align-top font-normal pr-1">₹</span>
-                  {data.attributes.estimatedPriceINR.toLocaleString("en-IN")}
+                  <span className="text-sm align-top font-normal pr-1">
+                    {symbol}
+                  </span>
+                  {data.attributes.price.estimatedPrice.toLocaleString(locale)}
                 </span>
               </div>
               <div className="text-sm text-gray-500 mt-1">
                 M.R.P.:{" "}
                 <span className="line-through">
-                  ₹
-                  {data.attributes.estimatedOriginalPriceINR.toLocaleString(
-                    "en-IN",
+                  {symbol}
+                  {data.attributes.price.estimatedOriginalPrice.toLocaleString(
+                    locale,
                   )}
                 </span>
               </div>

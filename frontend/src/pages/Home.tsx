@@ -93,7 +93,7 @@ const Home = () => {
     {
       title: "SEO & Listing Copy",
       description:
-        "Optimized titles, bullet points, and keywords tailored for Amazon's A9 algorithm - written in seconds.",
+        "Optimized titles, bullet points, and keywords tailored for Amazon's A10 algorithm - written in seconds.",
       icon: <ChartBarIcon className="text-indigo-500 w-7" />,
     },
     {
@@ -127,7 +127,7 @@ const Home = () => {
       step: "04",
       icon: <BoltIcon className="w-6 h-6" />,
       title: "Listing Generated",
-      desc: "SEO titles, bullets, keywords — all optimized for A9.",
+      desc: "SEO titles, bullets, keywords — all optimized for A10.",
     },
     {
       step: "05",
@@ -249,7 +249,7 @@ const Home = () => {
             </h1>
             <p className="mt-10 text-2xl max-w-2xl text-gray-400 text-center">
               Stop wasting days on copywriting - let AI extract the gold from
-              your post and dominate the A9 algorithm.
+              your post and dominate the A10 algorithm.
             </p>
             <form
               onSubmit={(e) => {

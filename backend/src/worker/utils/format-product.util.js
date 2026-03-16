@@ -53,7 +53,7 @@ export function formatOriginalProduct(data) {
             ? specs.map((spec) => `- **${spec.attribute_name}**: ${spec.attribute_value}`).join("\n")
             : "- N/A";
 
-    return `### TARGET PRODUCT (RAW BASELINE DATA)
+    return `
 - **Name**: ${data.product_name || "N/A"}
 - **Brand**: ${data.brand || "N/A"}
 - **Model**: ${data.model_or_style_code || "N/A"}

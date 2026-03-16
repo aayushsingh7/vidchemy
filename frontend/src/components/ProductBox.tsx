@@ -7,9 +7,13 @@ export interface Product {
   medias: string[];
   description: number;
   attributes: {
-    estimatedOriginalPriceINR: number;
-    estimatedPriceINR: number;
-    estimatedDiscountPercent: number;
+    price: {
+      currencyCode: string;
+      currencyName: string;
+      estimatedOriginalPrice: number;
+      estimatedPrice: number;
+      estimatedDiscountPercent: number;
+    };
   };
 }
 
@@ -18,6 +22,10 @@ interface ProductBoxProps {
 }
 
 const ProductBox: React.FC<ProductBoxProps> = ({ data }) => {
+  const isINR = data?.attributes?.price?.currencyCode === "INR";
+  const locale = isINR ? "en-IN" : "en-US";
+  const symbol = isINR ? "₹" : "$";
+
   return (
     <Link
       to={`/dashboard/listings/${data._id}`}
@@ -43,21 +51,24 @@ const ProductBox: React.FC<ProductBoxProps> = ({ data }) => {
         <div className="mt-4 flex flex-wrap items-end gap-2">
           <div className="flex items-start no-underline text-gray-100">
             <span className="text-lg mt-1 font-medium text-gray-300 relative top-[-10px]">
-              ₹
+              {symbol}
             </span>
             <span className="text-2xl font-semibold leading-none">
-              {data.attributes.estimatedPriceINR.toLocaleString()}
+              {data.attributes.price.estimatedPrice.toLocaleString(locale)}
             </span>
           </div>
 
-          {data.attributes.estimatedOriginalPriceINR >
-            data.attributes.estimatedPriceINR && (
+          {data.attributes.price.estimatedOriginalPrice >
+            data.attributes.price.estimatedPrice && (
             <div className="flex text-md text-gray-400 relative top-[-5px]">
               <span className="line-through text-md">
-                ₹{data.attributes.estimatedOriginalPriceINR.toLocaleString()}
+                {symbol}{" "}
+                {data.attributes.price.estimatedOriginalPrice.toLocaleString(
+                  locale,
+                )}
               </span>
               <span className="ml-2 text-gray-300">
-                ({data.attributes.estimatedDiscountPercent}% off)
+                ({data.attributes.price.estimatedDiscountPercent}% off)
               </span>
             </div>
           )}

@@ -42,10 +42,10 @@ class ScraperService {
         });
     }
 
-    async fetchAmazonProducts({searchResults}) {
+    async fetchAmazonProducts({searchResults, domain}) {
         const promises = searchResults.map((data) =>
             apiLimit(() =>
-                this.#fetchAmazonProductById({asin: data.asin}).catch((err) => {
+                this.#fetchAmazonProductById({asin: data.asin, domain}).catch((err) => {
                     console.log("Error at fetching product details: asin", data.asin, err.message);
                     return null;
                 })
