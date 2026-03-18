@@ -6,7 +6,15 @@ import DropDown from "../components/DropDown";
 import { useGuestAccount } from "../hooks/useGuestAccount";
 import { useToast } from "../hooks/useToast";
 import DialogBox from "../components/DialogBox";
-import { ArrowUpTrayIcon, BoltIcon, ChartBarIcon, MagnifyingGlassIcon, PhotoIcon, UserGroupIcon, VideoCameraIcon } from "@heroicons/react/24/solid";
+import {
+  ArrowUpTrayIcon,
+  BoltIcon,
+  ChartBarIcon,
+  MagnifyingGlassIcon,
+  PhotoIcon,
+  UserGroupIcon,
+  VideoCameraIcon,
+} from "@heroicons/react/24/solid";
 
 const navigation: any[] = [];
 const productCategories = [
@@ -51,6 +59,16 @@ const Home = () => {
     setShowDialog(false);
     setLoading(true);
     try {
+      let currencyCode = "INR";
+
+      try {
+        const locationRes = await fetch("https://ipapi.co/json");
+        const location = await locationRes.json();
+        currencyCode = location?.currency === "INR" ? "INR" : "USD";
+      } catch (err) {
+        currencyCode = "INR";
+      }
+
       const res = await fetch(`${import.meta.env.VITE_API_URL}/ingest`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,6 +77,7 @@ const Home = () => {
           productType,
           guestId,
           primarySourceUrl: null,
+          currencyCode
         }),
       });
 
@@ -135,7 +154,7 @@ const Home = () => {
     //   title: "Publish & Sell",
     //   desc: "Export directly to Amazon or Flipkart Seller Central.",
     // },
-    ];
+  ];
 
   return (
     <div>
@@ -366,7 +385,10 @@ const Home = () => {
                 Your first listing is one Reel away.
               </p>
             </div>
-            <a  href="#hero" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-all duration-200 whitespace-nowrap">
+            <a
+              href="#hero"
+              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-all duration-200 whitespace-nowrap"
+            >
               Get Started Free →
             </a>
           </div>

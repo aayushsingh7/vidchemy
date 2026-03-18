@@ -29,7 +29,7 @@ const worker = new Worker(
     async (job) => {
         if (job.name === "process-video") {
             console.log("[STARTED PROCESSING JOB]");
-            const {s3Key, userId, primarySourceUrl, videoAnalysisResult, postMetadata} = job.data;
+            const {s3Key, userId, primarySourceUrl, videoAnalysisResult, postMetadata, currencyCode} = job.data;
             const jobId = job.id;
 
             try {
@@ -38,16 +38,6 @@ const worker = new Worker(
                     jobId,
                 });
                 emitter.to(userId).emit("job-status", {jobId, status: "PROCESSING", errorMessage: ""});
-
-                let currencyCode = "INR";
-
-                try {
-                    const locationRes = await fetch("https://ipapi.co/json");
-                    const location = await locationRes.json();
-                    currencyCode = location?.currency || "INR";
-                } catch (err) {
-                    currencyCode = "INR";
-                }
 
                 console.log("[STATUS]: Start Video Transcribing...");
                 const videoTranscription = await aiService.transcribeS3Video({

@@ -9,7 +9,7 @@ class IngestionService {
         this.#listingService = listingService;
     }
 
-    async addIngestionJob({url, productType, userId, primarySourceUrl}) {
+    async addIngestionJob({url, productType, userId, primarySourceUrl, currencyCode = "INR"}) {
         if (!url || !productType || !userId) throw new CustomError("Url, product type and user id is required", 400);
         if (!/^https:\/\/(www\.)?instagram\.com\/reel\//.test(url)) {
             throw new CustomError("Only instagram reels are supported", 400);
@@ -33,6 +33,7 @@ class IngestionService {
                     productType,
                     userId,
                     primarySourceUrl: primarySourceUrl || null,
+                    currencyCode,
                 },
                 {jobId}
             );

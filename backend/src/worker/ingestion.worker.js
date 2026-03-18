@@ -22,7 +22,7 @@ const worker = new Worker(
     async (job) => {
         if (job.name === "ingest-job") {
             console.log("[STARTED INGESTION JOB]");
-            const {url, productType, userId, primarySourceUrl} = job.data;
+            const {url, productType, userId, primarySourceUrl, currencyCode} = job.data;
             let jobId = job.id;
             try {
                 emitter
@@ -65,6 +65,7 @@ const worker = new Worker(
                             primarySourceUrl,
                             videoAnalysisResult: result,
                             postMetadata: postData,
+                            currencyCode,
                         },
                         {jobId}
                     );
