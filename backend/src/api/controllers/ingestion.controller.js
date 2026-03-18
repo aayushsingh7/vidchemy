@@ -7,12 +7,13 @@ class IngestionController {
 
     upload = async (req, res, next) => {
         try {
-            const {url, productType, primarySourceUrl, guestId} = req.body;
+            const {url, productType, primarySourceUrl, guestId, currencyCode} = req.body;
             const listing = await this.#ingestionService.addIngestionJob({
                 url,
                 productType,
                 userId: guestId,
-                primarySourceUrl,
+                primarySourceUrl, 
+                currencyCode,
             });
             res.status(200).json({success: true, message: "Ingestion job queued", data: listing});
         } catch (err) {
