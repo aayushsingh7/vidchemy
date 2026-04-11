@@ -35,7 +35,7 @@ const DropDown: React.FC<ProductDropdownProps> = ({ options, onSelect, defaultTx
     <div className="relative inline-block text-left" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="rounded-full w-40 bg-gray-700 ml-2 h-14 whitespace-nowrap inline-flex items-center justify-between text-white bg-brand box-border  hover:bg-brand-strong border-2 border-gray-500/30 shadow-xs font-medium leading-5 text-md px-4 py-2.5 outline-none"
+        className="rounded-[10px] w-40 bg-zinc-800  h-14 whitespace-nowrap inline-flex items-center justify-between text-white bg-brand box-border  hover:bg-brand-strong border-2 border-gray-500/30 shadow-xs font-medium leading-5 text-md px-4 py-2.5 outline-none"
         type="button"
       >
         {selectedOption}
@@ -61,13 +61,13 @@ const DropDown: React.FC<ProductDropdownProps> = ({ options, onSelect, defaultTx
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div className="overflow-scroll rounded-[10px] h-[150px] bg-gray-800 absolute z-10 mt-3 left-0 bg-neutral-primary-medium border border-default-medium border-2 border-gray-500/30 shadow-lg w-44">
+        <div className="overflow-scroll rounded-[10px] h-[150px] bg-zinc-800 absolute z-10 mt-3 left-0 bg-neutral-primary-medium border border-default-medium border-2 border-gray-500/30 shadow-lg w-44">
           <ul className="p-2 text-md text-white text-body font-medium">
             {options.map((option, index) => (
               <li key={index}>
                 <button
                   onClick={() => handleSelect(option)}
-                  className="hover:bg-gray-700 inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded text-left"
+                  className="hover:bg-zinc-700 inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded text-left"
                 >
                   {option}
                 </button>

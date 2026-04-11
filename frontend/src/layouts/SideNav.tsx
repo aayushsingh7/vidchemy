@@ -17,7 +17,7 @@ const SideNav = ()=>  {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   return (
-    <div className="shrink-0 flex h-screen bg-gray-900 overflow-hidden font-sans">
+    <div className="shrink-0 flex h-screen bg-zinc-900 overflow-hidden font-sans">
       <div 
         className={`fixed inset-0 z-40 bg-black/70 transition-opacity duration-300 lg:hidden ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
@@ -25,7 +25,7 @@ const SideNav = ()=>  {
         onClick={() => setIsOpen(false)}
       />
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 transform bg-gray-900 border-r border-gray-800 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 transform bg-zinc-900 border-r border-gray-800 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -44,8 +44,8 @@ const SideNav = ()=>  {
               to={item.href}
               className={`group flex items-center gap-x-3 rounded-lg px-3 py-2 text-lg font-medium transition-colors ${
                 active === item.name 
-                  ? 'bg-gray-800 text-white' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                  ? 'bg-zinc-800 text-white' 
+                  : 'text-gray-400 hover:text-white hover:bg-zinc-800/50'
               }`}
             >
               <item.icon className="h-6 w-6 shrink-0" />
@@ -56,7 +56,7 @@ const SideNav = ()=>  {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="flex h-16 items-center border-b border-gray-800 bg-gray-900 px-4 lg:hidden">
+        <header className="flex h-16 items-center border-b border-gray-800 bg-zinc-900 px-4 lg:hidden">
           <button
             onClick={() => setIsOpen(true)}
             className="text-gray-400 focus:outline-none"

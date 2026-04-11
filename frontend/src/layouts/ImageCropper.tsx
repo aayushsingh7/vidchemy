@@ -84,7 +84,7 @@
 //           </div>
 //           <button 
 //             onClick={onClose}
-//             className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+//             className="p-2 text-gray-400 hover:text-gray-600 hover:bg-zinc-100 rounded-full transition-colors"
 //           >
 //             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 //               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -92,7 +92,7 @@
 //           </button>
 //         </div>
 
-//         <div className="flex-1 min-h-0 bg-gray-50/50 overflow-auto p-4 sm:p-6">
+//         <div className="flex-1 min-h-0 bg-zinc-50/50 overflow-auto p-4 sm:p-6">
 //           <div className="w-full flex justify-center items-start">
 //             <ReactCrop
 //               crop={crop}
@@ -115,7 +115,7 @@
 //         <div className="p-5 border-t border-gray-100 shrink-0 bg-white flex justify-end gap-3">
 //           <button
 //             onClick={onClose}
-//             className="px-5 py-2.5 text-gray-600 font-medium hover:bg-gray-100 rounded-xl transition-colors"
+//             className="px-5 py-2.5 text-gray-600 font-medium hover:bg-zinc-100 rounded-xl transition-colors"
 //           >
 //             Cancel
 //           </button>
@@ -246,7 +246,7 @@ export default function ImageCropper({ imageUrl, onClose }: ImageCropperProps) {
           </div>
           <button 
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-zinc-100 rounded-full transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -255,7 +255,7 @@ export default function ImageCropper({ imageUrl, onClose }: ImageCropperProps) {
         </div>
 
         {/* Cropper Container */}
-        <div className="flex-1 min-h-0 bg-gray-50/50 overflow-auto p-4 sm:p-6">
+        <div className="flex-1 min-h-0 bg-zinc-50/50 overflow-auto p-4 sm:p-6">
           <div className="w-full flex justify-center items-start">
             <ReactCrop
               crop={crop}
@@ -280,10 +280,10 @@ export default function ImageCropper({ imageUrl, onClose }: ImageCropperProps) {
         <div className="p-5 border-t border-gray-100 shrink-0 bg-white flex flex-col sm:flex-row items-center justify-between gap-4">
           
           {/* Rotation Controls */}
-          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl w-full sm:w-auto justify-center">
+          <div className="flex items-center gap-1 bg-zinc-100 p-1 rounded-xl w-full sm:w-auto justify-center">
             <button
               onClick={() => setRotation(r => r - 1)}
-              className="p-2 bg-white hover:bg-gray-50 text-gray-700 rounded-lg shadow-sm transition-colors"
+              className="p-2 bg-white hover:bg-zinc-50 text-gray-700 rounded-lg shadow-sm transition-colors"
               title="Rotate left 1 degree"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -303,7 +303,7 @@ export default function ImageCropper({ imageUrl, onClose }: ImageCropperProps) {
 
             <button
               onClick={() => setRotation(r => r + 1)}
-              className="p-2 bg-white hover:bg-gray-50 text-gray-700 rounded-lg shadow-sm transition-colors"
+              className="p-2 bg-white hover:bg-zinc-50 text-gray-700 rounded-lg shadow-sm transition-colors"
               title="Rotate right 1 degree"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -316,7 +316,7 @@ export default function ImageCropper({ imageUrl, onClose }: ImageCropperProps) {
           <div className="flex gap-3 w-full sm:w-auto">
             <button
               onClick={onClose}
-              className="flex-1 sm:flex-none px-5 py-2.5 text-gray-600 font-medium hover:bg-gray-100 rounded-xl transition-colors"
+              className="flex-1 sm:flex-none px-5 py-2.5 text-gray-600 font-medium hover:bg-zinc-100 rounded-xl transition-colors"
             >
               Cancel
             </button>

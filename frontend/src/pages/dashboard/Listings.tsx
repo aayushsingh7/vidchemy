@@ -33,7 +33,7 @@ const Listings = () => {
   if (loading) return <Loader />;
 
   return (
-    <main className="font-inter flex-1 overflow-y-auto px-6 text-gray-300 w-full bg-gray-900 h-[100dvh]">
+    <main className="font-inter flex-1 overflow-y-auto px-6 text-gray-300 w-full bg-zinc-900 h-[100dvh]">
       <h2 className="text-2xl h-16 font-semibold text-white flex items-center gap-3">
         Listings
       </h2>

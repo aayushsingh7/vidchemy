@@ -21,8 +21,8 @@ const JobBox: React.FC<JobProps> = ({ job }) => {
 
 
   return (
-    <Link  to={`/status/${job.jobId}`} className="relative p-3 px-5 bg-gray-900 border-2 border-gray-500/30 rounded-[10px]">
-      <span className="inline-block px-3 font-bold mb-[10px] text-[12px] text-white bg-gray-800 border-2 border-gray-500/30 rounded-[5px] p-1">
+    <Link  to={`/status/${job.jobId}`} className="relative p-3 px-5 bg-zinc-900 border-2 border-gray-500/30 rounded-[10px]">
+      <span className="inline-block px-3 font-bold mb-[10px] text-[12px] text-white bg-zinc-800 border-2 border-gray-500/30 rounded-[5px] p-1">
         {job.processingStatus.split("_").join(" ")}
       </span>
 
